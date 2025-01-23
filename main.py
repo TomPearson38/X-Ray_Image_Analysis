@@ -57,6 +57,22 @@ class MainWindow(QMainWindow):
                 background: #81A1C1;
                 color: #ECEFF4;
             }
+                           
+            QLabel {
+                color: #D8DEE9;
+            }
+                           
+            QPushButton {
+                background: #4C566A;
+                color: #ECEFF4;
+                padding: 8px;
+                margin: 2px;
+                border-radius: 5px;
+            }
+            QPushButton::hover {
+                background: #81A1C1;
+                color: #ECEFF4;
+            }
         """)
 
 if __name__ == "__main__":
