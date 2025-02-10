@@ -1,6 +1,6 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel, QGridLayout, QPushButton
-from PyQt6.QtCore import Qt, pyqtSignal
+from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel, QGridLayout, QPushButton
+from PySide6.QtCore import Qt
 
 class AnalyseImageTab(QWidget):    
     def __init__(self):
@@ -8,7 +8,7 @@ class AnalyseImageTab(QWidget):
         layout = QGridLayout()
 
         layout.addWidget(QLabel("Select Image of X-Ray"), 0, 0)
-        selectedImageButton = QPushButton("Analyse")
+        selectedImageButton = QPushButton("Browse...")
         layout.addWidget(selectedImageButton, 0, 1)
 
 

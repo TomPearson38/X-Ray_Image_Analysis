@@ -1,6 +1,6 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel
-from PyQt6.QtCore import Qt, pyqtSignal
+from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel
+from PySide6.QtCore import Qt
 
 from ui_tabs.analyse_image_tab import AnalyseImageTab
 from ui_tabs.train_ai_tab import TrainAiTab

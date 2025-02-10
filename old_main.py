@@ -1,12 +1,12 @@
 from prefect import task, flow
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QPushButton
-from PyQt6.QtCore import QObject, pyqtSignal
+from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QPushButton
+from PySide6.QtCore import QObject, Signal
 import sys
 import stages.model_training
 
 # Signal Monitor class to monitor progress to GUI
 class PrefectMonitor(QObject):
-    progress_signal = pyqtSignal(str)  # Signal to send task updates to the GUI
+    progress_signal = Signal(str)  # Signal to send task updates to the GUI
 
 monitor = PrefectMonitor()  # Instantiate the monitor
 
