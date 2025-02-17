@@ -1,7 +1,8 @@
 import sys
+import re
 from PySide6.QtWidgets import (QApplication, QTabWidget, QWidget, QVBoxLayout, 
                                QLabel, QGridLayout, QPushButton, QLineEdit, QComboBox, 
-                               QStackedLayout, QFrame, QMessageBox, QProgressBar)
+                               QStackedLayout, QFrame, QMessageBox, QProgressBar, QTextEdit, QSizePolicy)
 from PySide6.QtCore import Qt, Signal, Slot, QThread
 
 from stages.main_train_pipeline import MainTrainPipeline
@@ -12,7 +13,6 @@ class TrainAiTab(QWidget):
         self.mainLayout = QGridLayout()
         
         #Adds button to be able to switch to previous view when training is in progress
-        
         switch_view_layout = QGridLayout()
         
         self.controlViewPushButton = QPushButton()
@@ -33,7 +33,6 @@ class TrainAiTab(QWidget):
         
         self.mainLayout.addWidget(self.switch_view_widget, 0, 0, 2, 2)
         self.switch_view_widget.setHidden(True)
-        ##
         
         self.stacked_layout = QStackedLayout()
         self.mainLayout.addLayout(self.stacked_layout, 2, 0, 1, 2)
@@ -98,9 +97,6 @@ class TrainAiTab(QWidget):
         return startTrainAiWidget
 
     def create_ai_train_gui(self):
-        dataAugmentationLayout = QGridLayout()
-        modelTrainingLayout = QGridLayout()
-        modelTestingLayout = QGridLayout()
         aiTrainingInProgressLayout = QGridLayout()
         #AI In Training Layout
 
@@ -119,11 +115,11 @@ class TrainAiTab(QWidget):
         label.setAlignment(Qt.AlignCenter)
 
         layout.addWidget(label)
-        self.modelTrainingTextBox = QLabel("No Update")
-        layout.addWidget(self.modelTrainingTextBox,  Qt.AlignmentFlag.AlignCenter)
+        self.dataAugmentationTextBox = QLabel("")
+        layout.addWidget(self.dataAugmentationTextBox,  Qt.AlignmentFlag.AlignCenter)
         
         self.dataAugmentationProgressBar = QProgressBar()
-        self.dataAugmentationProgressBar.setValue(100)
+        self.dataAugmentationProgressBar.setValue(0)
         layout.addWidget(self.dataAugmentationProgressBar, Qt.AlignmentFlag.AlignBottom)
         
         dataAugmentationColumn.setLayout(layout)
@@ -140,11 +136,12 @@ class TrainAiTab(QWidget):
         label.setAlignment(Qt.AlignCenter)
 
         layout.addWidget(label)
-        self.modelTrainingTextBox = QLabel("No Update")
+        self.modelTrainingTextBox = QTextEdit()
+        self.modelTrainingTextBox.setReadOnly(True)
         layout.addWidget(self.modelTrainingTextBox,  Qt.AlignmentFlag.AlignCenter)
         
         self.trainingProgressBar = QProgressBar()
-        self.trainingProgressBar.setValue(50)
+        self.trainingProgressBar.setValue(0)
         layout.addWidget(self.trainingProgressBar, Qt.AlignmentFlag.AlignBottom)
         
         trainingStageColumn.setLayout(layout)
@@ -162,7 +159,7 @@ class TrainAiTab(QWidget):
         label.setAlignment(Qt.AlignCenter)
 
         layout.addWidget(label)
-        self.testingStageTextBox = QLabel("No Update")
+        self.testingStageTextBox = QLabel("")
         layout.addWidget(self.testingStageTextBox,  Qt.AlignmentFlag.AlignCenter)
         
         self.testingProgressBar = QProgressBar()
@@ -172,9 +169,9 @@ class TrainAiTab(QWidget):
         testingStageColumn.setLayout(layout)
         aiTrainingInProgressLayout.addWidget(testingStageColumn, 1, 2)
 
+        aiTrainingInProgressLayout.setColumnStretch(0, 1)
         aiTrainingInProgressLayout.setColumnStretch(1, 1)
         aiTrainingInProgressLayout.setColumnStretch(2, 1)
-        aiTrainingInProgressLayout.setColumnStretch(3, 1)
         aiTrainingInProgressWidget = QWidget()
         aiTrainingInProgressWidget.setLayout(aiTrainingInProgressLayout)
 
@@ -191,12 +188,28 @@ class TrainAiTab(QWidget):
     def start_ai_train(self):
         self.AINameInputInProgress.setText(self.AINameInput.text())
         self.trainInProgress = True
-        self.stacked_layout.setCurrentIndex(1)
-        self.switch_view_widget.setHidden(False)
         self.startTrainingButtonsWidget.setHidden(True)
         self.cancelButton.setHidden(False)
-        #self.pipeline = MainTrainPipeline(self)
-        #self.pipeline.run()
+        self.cancelButton.setText("Creating Pipeline...")
+        self.cancelButton.setDisabled(True)
+        self.pipeline = MainTrainPipeline(self)
+        
+        self.pipeline.pipeline_started.connect(self.pipeline_created)
+        self.pipeline.data_augmentation_text.connect(self.update_data_augmentation_text)
+        self.pipeline.data_augmentation_progress_bar.connect(self.update_data_augmentation_progress_bar)
+        self.pipeline.model_training_text.connect(self.update_model_training_text)
+        self.pipeline.model_training_progress_bar.connect(self.update_model_training_progress_bar)
+        self.pipeline.model_testing_text.connect(self.update_testing_text)
+        self.pipeline.model_testing_progress_bar.connect(self.update_data_augmentation_progress_bar)
+        
+        self.pipeline.start()
+
+    def pipeline_created(self, val):
+        self.switch_view_widget.setHidden(False)
+        self.stacked_layout.setCurrentIndex(1)
+        self.cancelButton.setText("Cancel Training")
+        self.cancelButton.setDisabled(False)
+
 
     def confirm_cancel_training(self):
         confirmMessageBox = QMessageBox()
@@ -218,12 +231,48 @@ class TrainAiTab(QWidget):
         self.stacked_layout.setCurrentIndex(0)
         self.startTrainingButtonsWidget.setVisible(True)
 
-    @Slot(str)
-    def update_a_str_field(self, message):
-        print("here")
-        self.modelTrainingTextBox.setText(message)
+    def stop_training(self):
+        if(self.pipeline and self.pipeline._is_running):
+            self.pipeline.stop()
+            self.pipeline.wait()
 
-    @Slot(int)
-    def update_a_int_field(self, value):
-        print(value)
+    def update_data_augmentation_progress_bar(self, progress):
+        self.dataAugmentationProgressBar.setValue(progress)
+        
+    def update_data_augmentation_text(self, update):
+        self.dataAugmentationTextBox.setText(self.dataAugmentationTextBox.text() + " " + update)
+        
+    def update_model_training_progress_bar(self, progress):
+        self.trainingProgressBar.setValue(progress)
+        
+    def parse_update_for_progress(self, text):
+        # Regex to extract (epoch/total_epochs) and (percentage completed)
+        pattern = r"(\d+)\/(\d+).*?(\d+)%\|"
+        match = re.search(pattern, text)
+
+        if match:
+            epoch = int(match.group(1))         # Current epoch
+            total_epochs = int(match.group(2))  # Total epochs
+            stage_progress = int(match.group(3))  # % progress in the current stage
+
+            # Overall progress
+            self.trainingProgressBar.setValue(((epoch - 1) / total_epochs + (stage_progress / 100) / total_epochs) * 100)
+        
+    def update_model_training_text(self, update):
+        self.modelTrainingTextBox.append(update)
+        self.parse_update_for_progress(update)
+        
+    def update_testing_progress_bar(self, progress):
+        self.testingProgressBar.setValue(progress)
+        
+    def update_testing_text(self, update):
+        self.testingStageTextBox.setText(self.testingStageTextBox.text() + " " + update)
+        
+    def closeEvent(self, event):
+        """ Handle window close event """
+        if self.thread and self.thread.isRunning():
+            self.thread.stop()
+            self.thread.wait()  # Ensure thread exits before closing
+
+        event.accept()  # Proceed with closing
         

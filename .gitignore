@@ -172,3 +172,4 @@ cython_debug/
 
 # Runs can't be stored on the git to save space
 runs/*
+trained_models/*

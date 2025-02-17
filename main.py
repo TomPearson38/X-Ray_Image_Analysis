@@ -1,3 +1,4 @@
+import signal
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel
 from PySide6.QtCore import Qt
@@ -75,7 +76,14 @@ class MainWindow(QMainWindow):
             }
         """)
 
+# TODO: Need to fix functionality for closing window. Ensure all threads terminate correctly.
+def handle_sigint(signal_received, frame):
+    """ Handle Ctrl+C """
+    print("Ctrl+C detected, exiting...")
+    app.quit()
+
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, handle_sigint)  # CTRL C exit condition
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
