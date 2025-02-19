@@ -9,6 +9,7 @@ import stages.model_training
 class MainTrainPipeline(QThread):
     """Creates the training pipeline thread. It augments the data, trains a model and evaluates/tests the produced model."""
     pipeline_started = Signal(bool)
+    pipeline_finished = Signal()
     data_augmentation_text = Signal(str)
     data_augmentation_progress_bar = Signal(int)
     model_training_text = Signal (str)
@@ -39,6 +40,7 @@ class MainTrainPipeline(QThread):
         
         if result and self._is_running:
             self.test_model(result)
+        self.pipeline_finished.emit()
 
     @task
     def prepare_data(self):
@@ -84,6 +86,7 @@ class MainTrainPipeline(QThread):
         
         if self.console_thread:
             self.console_thread.stop()
+            self.console_thread.quit()
             sys.stdout = sys.__stdout__
             sys.stderr = sys.__stderr__
 

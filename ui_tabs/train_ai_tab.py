@@ -201,7 +201,8 @@ class TrainAiTab(QWidget):
         self.pipeline.model_training_progress_bar.connect(self.update_model_training_progress_bar)
         self.pipeline.model_testing_text.connect(self.update_testing_text)
         self.pipeline.model_testing_progress_bar.connect(self.update_data_augmentation_progress_bar)
-        
+        self.pipeline.pipeline_finished.connect(self.stop_training)
+
         self.pipeline.start()
 
     def pipeline_created(self, val):

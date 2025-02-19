@@ -2,7 +2,10 @@ import os
 import sys
 from pathlib import Path
 from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel, QGridLayout, QPushButton, QFileDialog, QMessageBox
+from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtCore import Qt
+import cv2
+from ultralytics import YOLO
 
 class AnalyseImageTab(QWidget):
     def __init__(self):
@@ -68,3 +71,18 @@ class AnalyseImageTab(QWidget):
             errorMessage.setText("Please select a valid image to analyse.")
             errorMessage.exec()
             return
+        
+        model = YOLO(self.selectedAIModel)
+        results = model(self.selectedImage)
+
+        image = results[0].plot() 
+
+        # Convert OpenCV image (BGR) to QImage (RGB)
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        h, w, ch = image_rgb.shape
+        bytes_per_line = ch * w
+        q_img = QImage(image_rgb.data, w, h, bytes_per_line, QImage.Format_RGB888)
+
+        pixmap = QPixmap.fromImage(q_img)
+        self.selectedImageLabel.setPixmap(pixmap)
+        self.selectedImageLabel.setScaledContents(True) 
