@@ -1,7 +1,9 @@
 import signal
 import sys
+import ctypes
 from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
 
 from ui_tabs.analyse_image_tab import AnalyseImageTab
 from ui_tabs.train_ai_tab import TrainAiTab
@@ -82,9 +84,15 @@ def handle_sigint(signal_received, frame):
     print("Ctrl+C detected, exiting...")
     app.quit()
 
-if __name__ == "__main__":
+if __name__ == "__main__":    
     signal.signal(signal.SIGINT, handle_sigint)  # CTRL C exit condition
     app = QApplication(sys.argv)
+    
+    #Logo Setting
+    app.setWindowIcon(QIcon("Logo.ico"))
+    myappid = 'amrc.x-ray-image-analysis' # arbitrary string
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    
     window = MainWindow()
-    window.show()
+    window.showNormal()
     sys.exit(app.exec())
