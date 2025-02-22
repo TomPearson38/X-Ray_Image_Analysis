@@ -1,11 +1,13 @@
 import os
 import sys
 from pathlib import Path
-from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel, QGridLayout, QPushButton, QFileDialog, QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel, QGridLayout, QPushButton, QFileDialog, QMessageBox, QStackedLayout
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtCore import Qt
 import cv2
 from ultralytics import YOLO
+
+from ui_tabs.view_results_page import ViewResultsPage
 
 class AnalyseImageTab(QWidget):
     def __init__(self):
@@ -34,7 +36,14 @@ class AnalyseImageTab(QWidget):
         layout.addWidget(analyseImageButton, 2, 0, 1, 3)
         analyseImageButton.clicked.connect(self.start_image_analysis)
 
-        self.setLayout(layout)
+        self.stacked_layout = QStackedLayout()
+        widget_layout = QWidget()
+        widget_layout.setLayout(layout)        
+        self.stacked_layout.addWidget(widget_layout)
+
+        self.setLayout(self.stacked_layout)
+        self.stacked_layout.setCurrentIndex(0)
+
 
     def update_selected_model(self):
         result = self.browse_file(os.path.abspath("trained_models/"), "PyTorch File (*.pt)")
@@ -74,15 +83,13 @@ class AnalyseImageTab(QWidget):
         
         model = YOLO(self.selectedAIModel)
         results = model(self.selectedImage)
-
-        image = results[0].plot() 
-
-        # Convert OpenCV image (BGR) to QImage (RGB)
-        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        h, w, ch = image_rgb.shape
-        bytes_per_line = ch * w
-        q_img = QImage(image_rgb.data, w, h, bytes_per_line, QImage.Format_RGB888)
-
-        pixmap = QPixmap.fromImage(q_img)
-        self.selectedImageLabel.setPixmap(pixmap)
-        self.selectedImageLabel.setScaledContents(True) 
+        
+        self.results_widget = ViewResultsPage(self.selectedImage, results)
+        self.results_widget.switch_view.connect(self.reset_view)
+        self.stacked_layout.addWidget(self.results_widget)
+        self.stacked_layout.setCurrentIndex(1)
+        
+    def reset_view(self):
+        self.stacked_layout.setCurrentIndex(0)
+        self.stacked_layout.removeWidget(self.results_widget)
+        self.results_widget.deleteLater()
