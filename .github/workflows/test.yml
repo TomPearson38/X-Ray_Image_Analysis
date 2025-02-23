@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - adding_gui_to_backend
   pull_request:
 
 jobs:
