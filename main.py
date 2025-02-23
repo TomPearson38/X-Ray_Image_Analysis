@@ -1,13 +1,13 @@
 import signal
 import sys
 import ctypes
-from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout
 from PySide6.QtGui import QIcon
 
 from ui_tabs.analyse_image_tab import AnalyseImageTab
 from ui_tabs.train_ai_tab import TrainAiTab
 from ui_tabs.view_models_tab import ViewModelsTab
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -17,7 +17,7 @@ class MainWindow(QMainWindow):
 
         self.analyse_image_tab = AnalyseImageTab()
         self.view_models_tab = ViewModelsTab()
-        self.train_ai_tab =  TrainAiTab()
+        self.train_ai_tab = TrainAiTab()
         self.tabs = QTabWidget()
         self.tabs.addTab(self.analyse_image_tab, "Analyse Image")
         self.tabs.addTab(self.view_models_tab, "View Models")
@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
     def apply_styles(self):
         self.setStyleSheet("""
             QMainWindow {
-                background-color: #2E3440; 
+                background-color: #2E3440;
                 color: #D8DEE9;
             }
 
@@ -60,11 +60,11 @@ class MainWindow(QMainWindow):
                 background: #81A1C1;
                 color: #ECEFF4;
             }
-                           
+
             QLabel {
                 color: #D8DEE9;
             }
-                           
+
             QPushButton {
                 background: #4C566A;
                 color: #ECEFF4;
@@ -78,21 +78,23 @@ class MainWindow(QMainWindow):
             }
         """)
 
+
 # TODO: Need to fix functionality for closing window. Ensure all threads terminate correctly.
 def handle_sigint(signal_received, frame):
     """ Handle Ctrl+C """
     print("Ctrl+C detected, exiting...")
     app.quit()
 
-if __name__ == "__main__":    
+
+if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_sigint)  # CTRL C exit condition
     app = QApplication(sys.argv)
-    
-    #Logo Setting
+
+    # Logo Setting
     app.setWindowIcon(QIcon("Logo.ico"))
-    myappid = 'amrc.x-ray-image-analysis' # arbitrary string
+    myappid = 'amrc.x-ray-image-analysis'
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-    
+
     window = MainWindow()
     window.showNormal()
     sys.exit(app.exec())

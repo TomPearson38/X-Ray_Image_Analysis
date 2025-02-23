@@ -1,6 +1,5 @@
-import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
+
 
 class ViewModelsTab(QWidget):
     def __init__(self):

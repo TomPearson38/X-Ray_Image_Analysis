@@ -1,13 +1,10 @@
 import os
-import sys
 from pathlib import Path
-from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel, QGridLayout, QPushButton, QFileDialog, QMessageBox, QStackedLayout
-from PySide6.QtGui import QImage, QPixmap
-from PySide6.QtCore import Qt
-import cv2
+from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QFileDialog, QMessageBox, QStackedLayout
 from ultralytics import YOLO
 
 from ui_tabs.view_results_page import ViewResultsPage
+
 
 class AnalyseImageTab(QWidget):
     def __init__(self):
@@ -24,7 +21,6 @@ class AnalyseImageTab(QWidget):
         layout.addWidget(selectedImageButton, 0, 2)
         selectedImageButton.clicked.connect(self.update_selected_image)
 
-
         layout.addWidget(QLabel("Select AI Model"), 1, 0)
         selectAIModelButton = QPushButton("Select AI")
         self.selectedModelLabel = QLabel("")
@@ -38,12 +34,11 @@ class AnalyseImageTab(QWidget):
 
         self.stacked_layout = QStackedLayout()
         widget_layout = QWidget()
-        widget_layout.setLayout(layout)        
+        widget_layout.setLayout(layout)
         self.stacked_layout.addWidget(widget_layout)
 
         self.setLayout(self.stacked_layout)
         self.stacked_layout.setCurrentIndex(0)
-
 
     def update_selected_model(self):
         result = self.browse_file(os.path.abspath("trained_models/"), "PyTorch File (*.pt)")
@@ -63,9 +58,9 @@ class AnalyseImageTab(QWidget):
             return file_path
         else:
             return ""
-        
+
     def start_image_analysis(self):
-        if(self.selectedAIModel == "" or Path(self.selectedAIModel).suffix != ".pt"):
+        if (self.selectedAIModel == "" or Path(self.selectedAIModel).suffix != ".pt"):
             errorMessage = QMessageBox()
             errorMessage.setIcon(QMessageBox.Critical)
             errorMessage.setWindowTitle("Error")
@@ -73,22 +68,22 @@ class AnalyseImageTab(QWidget):
             errorMessage.exec()
             return
 
-        elif(self.selectedImage == "" or Path(self.selectedImage).suffix not in {".png", ".jpg"}):
+        elif (self.selectedImage == "" or Path(self.selectedImage).suffix not in {".png", ".jpg"}):
             errorMessage = QMessageBox()
             errorMessage.setIcon(QMessageBox.Critical)
             errorMessage.setWindowTitle("Error")
             errorMessage.setText("Please select a valid image to analyse.")
             errorMessage.exec()
             return
-        
+
         model = YOLO(self.selectedAIModel)
         results = model(self.selectedImage)
-        
+
         self.results_widget = ViewResultsPage(self.selectedImage, results)
         self.results_widget.switch_view.connect(self.reset_view)
         self.stacked_layout.addWidget(self.results_widget)
         self.stacked_layout.setCurrentIndex(1)
-        
+
     def reset_view(self):
         self.stacked_layout.setCurrentIndex(0)
         self.stacked_layout.removeWidget(self.results_widget)

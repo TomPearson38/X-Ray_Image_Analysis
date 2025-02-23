@@ -1,26 +1,29 @@
 import os
 from prefect import task, flow
-from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QPushButton
-from PySide6.QtCore import QObject, Signal, QThread
+from PySide6.QtCore import Signal, QThread
 import sys
 from helpers.console_output import CaptureConsoleOutputThread
 import stages.model_training
 
+
 class MainTrainPipeline(QThread):
-    """Creates the training pipeline thread. It augments the data, trains a model and evaluates/tests the produced model."""
+    """
+    Creates the training pipeline thread.
+    It augments the data, trains a model and evaluates/tests the produced model.
+    """
     pipeline_started = Signal(bool)
     pipeline_finished = Signal()
     data_augmentation_text = Signal(str)
     data_augmentation_progress_bar = Signal(int)
-    model_training_text = Signal (str)
+    model_training_text = Signal(str)
     model_training_progress_bar = Signal(int)
     model_testing_text = Signal(str)
     model_testing_progress_bar = Signal(int)
-    
+
     def __init__(self, parent):
         QThread.__init__(self, parent)
         self._is_running = True
-    
+
     def run(self):
         self.pipeline_flow()
 
@@ -29,15 +32,18 @@ class MainTrainPipeline(QThread):
 
     @flow(name="PyQt Integrated Pipeline")
     def pipeline_flow(self):
-        """Defines the pipeline using flow. Each stage is executed sequentially. Using results from previous stages."""
+        """
+        Defines the pipeline using flow. Each stage is executed sequentially.
+        Using results from previous stages.
+        """
 
         self.pipeline_started.emit(True)
         if self._is_running:
             data = self.prepare_data()
-        
+
         if data and self._is_running:
             result = self.train_model(data)
-        
+
         if result and self._is_running:
             self.test_model(result)
         self.pipeline_finished.emit()
@@ -48,12 +54,14 @@ class MainTrainPipeline(QThread):
 
         self.data_augmentation_progress_bar.emit(100)
         self.data_augmentation_text.emit("Finished")
-        return [1, 2, 3, 4, 5] # TODO: Implement correct data augmentation.
+        return [1, 2, 3, 4, 5]  # TODO: Implement correct data augmentation.
 
     @task
     def train_model(self, data):
-        """Uses the augmented data to create a trained model based on the parameters."""
-        #TODO: Create a config file to store this information
+        """
+        Uses the augmented data to create a trained model based on the parameters.
+        """
+        # TODO: Create a config file to store this information
 
         data_dir = os.path.abspath("data")  # Path to the dataset directory
         class_names = ["0"]  # List of class names, only 1 flaw, so only one class
@@ -77,13 +85,13 @@ class MainTrainPipeline(QThread):
         # Train the model
         stages.model_training.train_yolo(
             data_yaml=output_yaml,
-            output_root= os.path.abspath("trained_models"),
+            output_root=os.path.abspath("trained_models"),
             weights=weights,
             img_size=img_size,
             batch_size=batch_size,
             epochs=epochs
         )
-        
+
         if self.console_thread:
             self.console_thread.stop()
             self.console_thread.quit()
@@ -93,5 +101,5 @@ class MainTrainPipeline(QThread):
     @task
     def test_model(self, model_dir):
         """Tests the trained model against previous iterations, to produce a performance score."""
-        #TODO: Implement model testing.
+        # TODO: Implement model testing.
         pass

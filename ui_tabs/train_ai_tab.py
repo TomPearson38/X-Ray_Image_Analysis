@@ -1,20 +1,20 @@
-import sys
 import re
-from PySide6.QtWidgets import (QApplication, QTabWidget, QWidget, QVBoxLayout, 
-                               QLabel, QGridLayout, QPushButton, QLineEdit, QComboBox, 
-                               QStackedLayout, QFrame, QMessageBox, QProgressBar, QTextEdit, QSizePolicy)
-from PySide6.QtCore import Qt, Signal, Slot, QThread
+from PySide6.QtWidgets import (QWidget, QVBoxLayout,
+                               QLabel, QGridLayout, QPushButton, QLineEdit, QComboBox,
+                               QStackedLayout, QFrame, QMessageBox, QProgressBar, QTextEdit)
+from PySide6.QtCore import Qt
 
 from stages.main_train_pipeline import MainTrainPipeline
+
 
 class TrainAiTab(QWidget):
     def __init__(self):
         super().__init__()
         self.mainLayout = QGridLayout()
-        
-        #Adds button to be able to switch to previous view when training is in progress
+
+        # Adds button to be able to switch to previous view when training is in progress
         switch_view_layout = QGridLayout()
-        
+
         self.controlViewPushButton = QPushButton()
         self.controlViewPushButton.setText("Switch View")
         self.controlViewPushButton.pressed.connect(self.switch_views)
@@ -22,22 +22,22 @@ class TrainAiTab(QWidget):
         self.trainInProgress = False
         switch_view_layout.addWidget(QLabel("Start Train Ai View"), 0, 0)
         switch_view_layout.addWidget(self.controlViewPushButton, 0, 1)
-        
+
         separator = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
         separator.setFrameShadow(QFrame.Shadow.Sunken)
         switch_view_layout.addWidget(separator, 1, 0, 1, 2)  # Span across both columns
-        
+
         self.switch_view_widget = QWidget()
         self.switch_view_widget.setLayout(switch_view_layout)
-        
+
         self.mainLayout.addWidget(self.switch_view_widget, 0, 0, 2, 2)
         self.switch_view_widget.setHidden(True)
-        
+
         self.stacked_layout = QStackedLayout()
         self.mainLayout.addLayout(self.stacked_layout, 2, 0, 1, 2)
 
-        #default values
+        # default values
         self.dataCount = "TODO"
         self.dateSinceLastTrain = "20/01/2025"
 
@@ -62,20 +62,20 @@ class TrainAiTab(QWidget):
 
         newAIModelLayout.addWidget(QLabel("Image Count:"), 1, 0)
         newAIModelLayout.addWidget(QLabel(self.dataCount), 1, 1)
-        
+
         newAIModelLayout.addWidget(QLabel("Model Architecture Selected:"), 2, 0)
-        newAIModelLayout.addWidget(self.modelSelected, 2, 1) 
-        
+        newAIModelLayout.addWidget(self.modelSelected, 2, 1)
+
         newAIModelLayout.addWidget(QLabel("Previous Model Training Date:"), 3, 0)
         newAIModelLayout.addWidget(QLabel(self.dateSinceLastTrain), 3, 1)
 
-        #Init main layout
+        # Init main layout
         startTrainAiLayout.addWidget(QLabel("Train New AI"), 0, 0, 1, 2, Qt.AlignmentFlag.AlignHCenter)
 
         startTrainAiLayout.addLayout(newAIModelLayout, 1, 0, newAIModelLayout.rowCount(), 2)
 
         startTrainingButtonsLayout = QGridLayout()
-        
+
         trainFromScratchButton = QPushButton("Train from scratch")
         trainFromScratchButton.pressed.connect(self.start_ai_train)
         startTrainingButtonsLayout.addWidget(trainFromScratchButton, 0, 0)
@@ -85,26 +85,26 @@ class TrainAiTab(QWidget):
 
         self.startTrainingButtonsWidget = QWidget()
         self.startTrainingButtonsWidget.setLayout(startTrainingButtonsLayout)
-        startTrainAiLayout.addWidget(self.startTrainingButtonsWidget, newAIModelLayout.rowCount()+1, 0, 1, 2)
+        startTrainAiLayout.addWidget(self.startTrainingButtonsWidget, newAIModelLayout.rowCount() + 1, 0, 1, 2)
 
         self.cancelButton = QPushButton("Cancel Training")
         self.cancelButton.pressed.connect(self.confirm_cancel_training)
         self.cancelButton.setHidden(True)
-        startTrainAiLayout.addWidget(self.cancelButton, newAIModelLayout.rowCount()+1, 0, 1, 2)
-        
+        startTrainAiLayout.addWidget(self.cancelButton, newAIModelLayout.rowCount() + 1, 0, 1, 2)
+
         startTrainAiWidget = QWidget()
         startTrainAiWidget.setLayout(startTrainAiLayout)
         return startTrainAiWidget
 
     def create_ai_train_gui(self):
         aiTrainingInProgressLayout = QGridLayout()
-        #AI In Training Layout
+        # AI In Training Layout
 
         self.AINameInputInProgress = QLabel(self.AINameInput.text())
         aiTrainingInProgressLayout.addWidget(self.AINameInputInProgress, 0, 1, 1, 1, Qt.AlignmentFlag.AlignCenter)
         aiTrainingInProgressLayout.setSpacing(20)
 
-        #Data Augmentation Layout
+        # Data Augmentation Layout
         dataAugmentationColumn = QFrame()
         dataAugmentationColumn.setFrameShape(QFrame.Box)
         dataAugmentationColumn.setLineWidth(1)
@@ -116,16 +116,16 @@ class TrainAiTab(QWidget):
 
         layout.addWidget(label)
         self.dataAugmentationTextBox = QLabel("")
-        layout.addWidget(self.dataAugmentationTextBox,  Qt.AlignmentFlag.AlignCenter)
-        
+        layout.addWidget(self.dataAugmentationTextBox, Qt.AlignmentFlag.AlignCenter)
+
         self.dataAugmentationProgressBar = QProgressBar()
         self.dataAugmentationProgressBar.setValue(0)
         layout.addWidget(self.dataAugmentationProgressBar, Qt.AlignmentFlag.AlignBottom)
-        
+
         dataAugmentationColumn.setLayout(layout)
         aiTrainingInProgressLayout.addWidget(dataAugmentationColumn, 1, 0)
 
-        #Training Layout
+        # Training Layout
         trainingStageColumn = QFrame()
         trainingStageColumn.setFrameShape(QFrame.Box)
         trainingStageColumn.setLineWidth(1)
@@ -138,17 +138,16 @@ class TrainAiTab(QWidget):
         layout.addWidget(label)
         self.modelTrainingTextBox = QTextEdit()
         self.modelTrainingTextBox.setReadOnly(True)
-        layout.addWidget(self.modelTrainingTextBox,  Qt.AlignmentFlag.AlignCenter)
-        
+        layout.addWidget(self.modelTrainingTextBox, Qt.AlignmentFlag.AlignCenter)
+
         self.trainingProgressBar = QProgressBar()
         self.trainingProgressBar.setValue(0)
         layout.addWidget(self.trainingProgressBar, Qt.AlignmentFlag.AlignBottom)
-        
+
         trainingStageColumn.setLayout(layout)
         aiTrainingInProgressLayout.addWidget(trainingStageColumn, 1, 1)
 
-
-        #Testing Layout
+        # Testing Layout
         testingStageColumn = QFrame()
         testingStageColumn.setFrameShape(QFrame.Box)
         testingStageColumn.setLineWidth(1)
@@ -160,12 +159,12 @@ class TrainAiTab(QWidget):
 
         layout.addWidget(label)
         self.testingStageTextBox = QLabel("")
-        layout.addWidget(self.testingStageTextBox,  Qt.AlignmentFlag.AlignCenter)
-        
+        layout.addWidget(self.testingStageTextBox, Qt.AlignmentFlag.AlignCenter)
+
         self.testingProgressBar = QProgressBar()
         self.testingProgressBar.setValue(0)
         layout.addWidget(self.testingProgressBar, Qt.AlignmentFlag.AlignBottom)
-        
+
         testingStageColumn.setLayout(layout)
         aiTrainingInProgressLayout.addWidget(testingStageColumn, 1, 2)
 
@@ -178,12 +177,11 @@ class TrainAiTab(QWidget):
         return aiTrainingInProgressWidget
 
     def switch_views(self):
-        if(self.trainInProgress):
-            if(self.stacked_layout.currentIndex() == 0):
+        if (self.trainInProgress):
+            if (self.stacked_layout.currentIndex() == 0):
                 self.stacked_layout.setCurrentIndex(1)
             else:
                 self.stacked_layout.setCurrentIndex(0)
-                
 
     def start_ai_train(self):
         self.AINameInputInProgress.setText(self.AINameInput.text())
@@ -193,7 +191,7 @@ class TrainAiTab(QWidget):
         self.cancelButton.setText("Creating Pipeline...")
         self.cancelButton.setDisabled(True)
         self.pipeline = MainTrainPipeline(self)
-        
+
         self.pipeline.pipeline_started.connect(self.pipeline_created)
         self.pipeline.data_augmentation_text.connect(self.update_data_augmentation_text)
         self.pipeline.data_augmentation_progress_bar.connect(self.update_data_augmentation_progress_bar)
@@ -211,7 +209,6 @@ class TrainAiTab(QWidget):
         self.cancelButton.setText("Cancel Training")
         self.cancelButton.setDisabled(False)
 
-
     def confirm_cancel_training(self):
         confirmMessageBox = QMessageBox()
         confirmMessageBox.setIcon(QMessageBox.Warning)
@@ -219,13 +216,13 @@ class TrainAiTab(QWidget):
         confirmMessageBox.setText("Are you sure you want to cancel?")
         confirmMessageBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         result = confirmMessageBox.exec()
-        
-        if(result == QMessageBox.Yes):
+
+        if (result == QMessageBox.Yes):
             self.cancel_training()
-            
+
     def cancel_training(self):
         print("TODO: Cancel Logic")
-        
+
         self.trainInProgress = False
         self.cancelButton.setVisible(False)
         self.switch_view_widget.setVisible(False)
@@ -233,19 +230,19 @@ class TrainAiTab(QWidget):
         self.startTrainingButtonsWidget.setVisible(True)
 
     def stop_training(self):
-        if(self.pipeline and self.pipeline._is_running):
+        if (self.pipeline and self.pipeline._is_running):
             self.pipeline.stop()
             self.pipeline.wait()
 
     def update_data_augmentation_progress_bar(self, progress):
         self.dataAugmentationProgressBar.setValue(progress)
-        
+
     def update_data_augmentation_text(self, update):
         self.dataAugmentationTextBox.setText(self.dataAugmentationTextBox.text() + " " + update)
-        
+
     def update_model_training_progress_bar(self, progress):
         self.trainingProgressBar.setValue(progress)
-        
+
     def parse_update_for_progress(self, text):
         # Regex to extract (epoch/total_epochs) and (percentage completed)
         pattern = r"(\d+)\/(\d+).*?(\d+)%\|"
@@ -257,18 +254,20 @@ class TrainAiTab(QWidget):
             stage_progress = int(match.group(3))  # % progress in the current stage
 
             # Overall progress
-            self.trainingProgressBar.setValue(((epoch - 1) / total_epochs + (stage_progress / 100) / total_epochs) * 100)
-        
+            self.trainingProgressBar.setValue(
+                ((epoch - 1) / total_epochs + (stage_progress / 100) / total_epochs) * 100
+            )
+
     def update_model_training_text(self, update):
         self.modelTrainingTextBox.append(update)
         self.parse_update_for_progress(update)
-        
+
     def update_testing_progress_bar(self, progress):
         self.testingProgressBar.setValue(progress)
-        
+
     def update_testing_text(self, update):
         self.testingStageTextBox.setText(self.testingStageTextBox.text() + " " + update)
-        
+
     def closeEvent(self, event):
         """ Handle window close event """
         if self.thread and self.thread.isRunning():
@@ -276,4 +275,3 @@ class TrainAiTab(QWidget):
             self.thread.wait()  # Ensure thread exits before closing
 
         event.accept()  # Proceed with closing
-        

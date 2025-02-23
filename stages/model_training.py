@@ -5,6 +5,7 @@ import datetime
 import shutil
 from ultralytics import YOLO  # Requires YOLOv5 installed from ultralytics/yolov5
 
+
 def create_yaml(data_dir, output_path, class_names):
     """
     Create a dataset YAML file for YOLOv5 training.
@@ -38,7 +39,7 @@ def train_yolo(data_yaml, output_root, weights="yolov5s.pt", img_size=640, batch
         batch_size (int): Batch size for training.
         epochs (int): Number of epochs to train.
         output_root (str): Root directory where trained models should be saved
-    
+
     :return: Path to created model
     :rtype: str
     """
@@ -53,7 +54,7 @@ def train_yolo(data_yaml, output_root, weights="yolov5s.pt", img_size=640, batch
     print(f"Training on {device.upper()}...")
 
     model = YOLO(weights)
-    
+
     # Train the model
     model.train(
         data=data_yaml,
@@ -63,7 +64,7 @@ def train_yolo(data_yaml, output_root, weights="yolov5s.pt", img_size=640, batch
         cache=True,
         device=device
     )
-    
+
     runs_dir = "runs/detect"  # Location YOLO saves trained models
     latest_run = sorted(os.listdir(runs_dir))[-1]  # Get the latest training run
     best_model_path = os.path.join(runs_dir, latest_run)
@@ -76,6 +77,5 @@ def train_yolo(data_yaml, output_root, weights="yolov5s.pt", img_size=640, batch
     shutil.rmtree(best_model_path)
 
     print(f"Model saved at: {model_dir}")
-
 
     return model_dir  # Return the directory where the model was saved
