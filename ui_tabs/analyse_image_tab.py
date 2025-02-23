@@ -47,13 +47,13 @@ class AnalyseImageTab(QWidget):
 
     def update_selected_model(self):
         result = self.browse_file(os.path.abspath("trained_models/"), "PyTorch File (*.pt)")
-        if result != "":
+        if result != "" and result.endswith(".pt"):
             self.selectedAIModel = result
             self.selectedModelLabel.setText("..." + self.selectedAIModel[-20:])
 
     def update_selected_image(self):
         result = self.browse_file("", "Images (*.png *.jpg)")
-        if result != "":
+        if result != "" and (result.endswith(".png") or result.endswith(".jpg")):
             self.selectedImage = result
             self.selectedImageLabel.setText("..." + self.selectedImage[-20:])
 
