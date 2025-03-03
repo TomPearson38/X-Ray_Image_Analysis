@@ -4,6 +4,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout,
                                QStackedLayout, QFrame, QMessageBox, QProgressBar, QTextEdit)
 from PySide6.QtCore import Qt
 
+from data_classes.model_info import ModelInfo
 from stages.main_train_pipeline import MainTrainPipeline
 
 
@@ -190,7 +191,8 @@ class TrainAiTab(QWidget):
         self.cancelButton.setHidden(False)
         self.cancelButton.setText("Creating Pipeline...")
         self.cancelButton.setDisabled(True)
-        self.pipeline = MainTrainPipeline(self)
+        self.model_info = ModelInfo(self.AINameInput.text(), self.modelSelected.currentText(), "", self.dataCount)
+        self.pipeline = MainTrainPipeline(self, self.model_info)
 
         self.pipeline.pipeline_started.connect(self.pipeline_created)
         self.pipeline.data_augmentation_text.connect(self.update_data_augmentation_text)
