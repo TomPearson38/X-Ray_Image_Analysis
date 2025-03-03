@@ -13,6 +13,7 @@ def app(qtbot):
 
 
 def test_pipeline_creation(app: MainWindow, qtbot):
+    os.makedirs("data/dataset_yaml/", exist_ok=True)
     app.tabs.setCurrentIndex(2)
     app.train_ai_tab.AINameInput.setText("Example Name")
     app.train_ai_tab.start_ai_train()
