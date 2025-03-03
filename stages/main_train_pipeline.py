@@ -1,5 +1,4 @@
 import os
-import threading
 from PySide6.QtCore import Signal, QThread
 import sys
 from helpers.console_output import CaptureConsoleOutputThread
