@@ -14,6 +14,7 @@ class YoloThread(threading.Thread):
         self.batch_size = batch_size
         self.epochs = epochs
         self.trainYoloThread = threading.Thread(target=self.run, daemon=True)
+        self.trainYoloThread.daemon = True
         self.stop_flag = event
 
     def start(self):
@@ -40,6 +41,3 @@ class YoloThread(threading.Thread):
 
     def stop(self):
         self._running = False
-        if self.trainYoloThread:
-            self.trainYoloThread.join()  # Ensure the thread stops before continuing
-        print("Thread stopped.")

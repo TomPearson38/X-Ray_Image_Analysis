@@ -95,3 +95,8 @@ class MainTrainPipeline(QThread):
             self.wait()
             sys.stdout = sys.__stdout__
             sys.stderr = sys.__stderr__
+
+    def exit_early(self):
+        self.cleanup()
+        if self.trainYoloThread._running:
+            self.trainYoloThread.stop()
