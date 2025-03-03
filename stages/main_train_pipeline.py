@@ -1,9 +1,10 @@
 import os
-from prefect import task, flow
+import threading
 from PySide6.QtCore import Signal, QThread
 import sys
 from helpers.console_output import CaptureConsoleOutputThread
 import stages.model_training
+from stages.yolo_thread import YoloThread
 
 
 class MainTrainPipeline(QThread):
@@ -30,7 +31,6 @@ class MainTrainPipeline(QThread):
     def stop(self):
         self._is_running = False
 
-    @flow(name="PyQt Integrated Pipeline")
     def pipeline_flow(self):
         """
         Defines the pipeline using flow. Each stage is executed sequentially.
@@ -48,7 +48,6 @@ class MainTrainPipeline(QThread):
             self.test_model(result)
         self.pipeline_finished.emit()
 
-    @task
     def prepare_data(self):
         """Augments the data to improve the performance of the model training."""
 
@@ -56,7 +55,6 @@ class MainTrainPipeline(QThread):
         self.data_augmentation_text.emit("Finished")
         return [1, 2, 3, 4, 5]  # TODO: Implement correct data augmentation.
 
-    @task
     def train_model(self, data):
         """
         Uses the augmented data to create a trained model based on the parameters.
@@ -69,7 +67,7 @@ class MainTrainPipeline(QThread):
         weights = "yolov5s.pt"  # Pretrained weights to use
         img_size = 640  # Image size for training
         batch_size = 16  # Batch size for training
-        epochs = 1  # Number of epochs for training
+        epochs = 50  # Number of epochs for training
 
         # Create YAML file for YOLO to use
         stages.model_training.create_yaml(data_dir, output_yaml, class_names)
@@ -82,24 +80,19 @@ class MainTrainPipeline(QThread):
         sys.stderr = self.console_thread  # Redirect stderr
         self.console_thread.start()
 
-        # Train the model
-        stages.model_training.train_yolo(
-            data_yaml=output_yaml,
-            output_root=os.path.abspath("trained_models"),
-            weights=weights,
-            img_size=img_size,
-            batch_size=batch_size,
-            epochs=epochs
-        )
+        self.trainYoloThread = YoloThread(output_yaml, weights, img_size, batch_size, epochs, self.cleanup)
 
-        if self.console_thread:
-            self.console_thread.stop()
-            self.console_thread.quit()
-            sys.stdout = sys.__stdout__
-            sys.stderr = sys.__stderr__
+        self.trainYoloThread.start()
 
-    @task
     def test_model(self, model_dir):
         """Tests the trained model against previous iterations, to produce a performance score."""
         # TODO: Implement model testing.
         pass
+
+    def cleanup(self):
+        if self.console_thread:
+            self.console_thread.stop()
+            self.console_thread.quit()
+            self.wait()
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
