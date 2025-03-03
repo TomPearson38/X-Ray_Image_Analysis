@@ -2,6 +2,7 @@ import os
 import numpy as np
 from PIL import Image
 
+
 def convert_gt_to_yolo(gt_file, images_dir, output_dir, class_id=0):
     """
     Converts a ground truth file to YOLOv5 format.
@@ -17,7 +18,7 @@ def convert_gt_to_yolo(gt_file, images_dir, output_dir, class_id=0):
 
     # Load ground truth data
     gt_data = np.loadtxt(gt_file)
-    
+
     # Iterate over all images in the directory
     image_files = [f for f in os.listdir(images_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
     processed_images = set()
