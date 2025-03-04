@@ -4,19 +4,20 @@ import os
 
 class ModelInfo:
     """Class to represent a configuration object."""
-    def __init__(self, name, model, date_time_trained, number_of_images):
+    def __init__(self, name, model, date_time_trained, number_of_images, path="", epoch="",
+                 box_loss="", cls_loss="", mAP_50="", mAP_50_95="", precision="", recall=""):
         self.name = name
         self.model = model
         self.date_time_trained = date_time_trained
         self.number_of_images = number_of_images
-        self.path = ""
-        self.epoch = ""
-        self.box_loss = ""
-        self.cls_loss = ""
-        self.mAP_50 = ""
-        self.mAP_50_95 = ""
-        self.precision = ""
-        self.recall = ""
+        self.path = path
+        self.epoch = epoch
+        self.box_loss = box_loss
+        self.cls_loss = cls_loss
+        self.mAP_50 = mAP_50
+        self.mAP_50_95 = mAP_50_95
+        self.precision = precision
+        self.recall = recall
 
     @classmethod
     def fromPath(cls, file_path):

@@ -61,6 +61,29 @@ class MainWindow(QMainWindow):
                 color: #ECEFF4;
             }
 
+            /* Config List Widget */
+            QListWidget {
+                background-color: #3B4252;
+                border: 1px solid #4C566A;
+                color: #ECEFF4;
+                font-size: 14px;
+                padding: 4px;
+            }
+            QListWidget::item {
+                background-color: #4C566A;
+                padding: 8px;
+                margin: 2px;
+                border-radius: 5px;
+            }
+            QListWidget::item:selected {
+                background-color: #5E81AC;
+                color: #ECEFF4;
+            }
+            QListWidget::item:hover {
+                background-color: #81A1C1;
+                color: #ECEFF4;
+            }
+
             QLabel {
                 color: #D8DEE9;
             }
