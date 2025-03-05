@@ -112,5 +112,5 @@ class MainTrainPipeline(QThread):
 
     def exit_early(self):
         self.cleanup()
-        if self.trainYoloThread._running:
+        if self.trainYoloThread and self.trainYoloThread._running:
             self.trainYoloThread.stop()
