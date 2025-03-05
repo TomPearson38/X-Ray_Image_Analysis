@@ -47,9 +47,6 @@ def train_yolo(data_yaml, output_root, model_info, weights="yolov5s.pt", img_siz
     training_start = datetime.datetime.now()
     timestamp = training_start.strftime("%Y%m%d_%H%M%S")
     model_dir = os.path.join(output_root, f"model_{timestamp}")
-    os.makedirs(model_dir, exist_ok=True)
-
-    print(f"Saving model artifacts in: {model_dir}")
 
     # Check if CUDA (GPU) is available and set the device
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -66,6 +63,10 @@ def train_yolo(data_yaml, output_root, model_info, weights="yolov5s.pt", img_siz
         cache=True,
         device=device
     )
+
+    os.makedirs(model_dir, exist_ok=True)
+
+    print(f"Saving model artifacts in: {model_dir}")
 
     runs_dir = "runs/detect"  # Location YOLO saves trained models
     latest_run = sorted(os.listdir(runs_dir))[-1]  # Get the latest training run

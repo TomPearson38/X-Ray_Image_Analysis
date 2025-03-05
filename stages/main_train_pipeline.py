@@ -104,7 +104,7 @@ class MainTrainPipeline(QThread):
         pass
 
     def cleanup(self):
-        if self.console_thread:
+        if hasattr(self, 'console_thread'):
             self.console_thread.stop()
             self.console_thread.quit()
             sys.stdout = sys.__stdout__
@@ -112,5 +112,5 @@ class MainTrainPipeline(QThread):
 
     def exit_early(self):
         self.cleanup()
-        if self.trainYoloThread and self.trainYoloThread._running:
+        if hasattr(self, 'trainYoloThread') and self.trainYoloThread._running:
             self.trainYoloThread.stop()

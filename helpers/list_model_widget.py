@@ -33,7 +33,10 @@ class ListModelWidget(QWidget):
 
         for folder in os.listdir(models_dir):
             folder_path = os.path.join(models_dir, folder, "info.json")
-            self.configs[folder] = ModelInfo.fromPath(folder_path)
+            try:
+                self.configs[folder] = ModelInfo.fromPath(folder_path)
+            except FileNotFoundError:
+                print("FILE NOT FOUND")
 
     def populate_list(self):
         """Populates the list with config names."""
