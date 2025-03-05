@@ -235,6 +235,7 @@ class TrainAiTab(QWidget):
         if (self.pipeline and self.pipeline._is_running):
             self.pipeline.stop()
             self.pipeline.wait()
+        self.cancel_training()
 
     def update_data_augmentation_progress_bar(self, progress):
         self.dataAugmentationProgressBar.setValue(progress)
