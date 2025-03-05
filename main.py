@@ -22,6 +22,7 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.analyse_image_tab, "Analyse Image")
         self.tabs.addTab(self.view_models_tab, "View Models")
         self.tabs.addTab(self.train_ai_tab, "Train AI")
+        self.tabs.currentChanged.connect(self.on_tab_changed)
 
         # central widget and layout
         central_widget = QWidget()
@@ -32,6 +33,10 @@ class MainWindow(QMainWindow):
 
         # styling
         self.apply_styles()
+
+    def on_tab_changed(self, index):
+        if index == 1:
+            self.view_models_tab.update_models()
 
     def apply_styles(self):
         self.setStyleSheet("""

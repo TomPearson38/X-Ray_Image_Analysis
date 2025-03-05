@@ -47,15 +47,21 @@ class ListModelWidget(QWidget):
             display_name = config_data.name + " - " + config_data.date_time_trained
             self.list_widget.insertItem(0, display_name)
 
+    def update_list(self):
+        # Add Logic to check if update needed
+        self.load_configs()
+        self.populate_list()
+
     def on_item_selected(self):
         """Handles item selection and emits signal."""
-        selected_name = self.list_widget.currentItem().text()
+        if self.list_widget.currentItem() is not None:
+            selected_name = self.list_widget.currentItem().text()
 
-        config_data = None
-        for _, data in self.configs.items():
-            if (data.name + " - " + data.date_time_trained) == selected_name:
-                config_data = data
-                break
+            config_data = None
+            for _, data in self.configs.items():
+                if (data.name + " - " + data.date_time_trained) == selected_name:
+                    config_data = data
+                    break
 
-        if config_data is not None:
-            self.config_selected.emit(selected_name, config_data)
+            if config_data is not None:
+                self.config_selected.emit(selected_name, config_data)

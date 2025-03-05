@@ -85,3 +85,6 @@ class ViewModelsTab(QWidget):
 
         pixmap = model.get_results_png().scaled(800, 400)
         self.results_image.setPixmap(pixmap)
+
+    def update_models(self):
+        self.config_list_widget.update_list()
