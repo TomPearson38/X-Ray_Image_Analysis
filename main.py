@@ -36,68 +36,74 @@ class MainWindow(QMainWindow):
     def apply_styles(self):
         self.setStyleSheet("""
             QMainWindow {
-                background-color: #2E3440;
-                color: #D8DEE9;
+                background-color: #1E1E1E;
+                color: #FF8C00;
             }
 
             /* tab widget and tabs */
             QTabWidget::pane {
-                border: 1px solid #4C566A;
-                background: #3B4252;
+                border: 1px solid #333333;
+                background: #252525;
             }
             QTabBar::tab {
-                background: #4C566A;
-                color: #ECEFF4;
+                background: #333333;
+                color: #FF8C00;
                 padding: 8px;
                 margin: 2px;
                 border-radius: 5px;
             }
             QTabBar::tab:selected {
-                background: #5E81AC;
-                color: #ECEFF4;
+                background: #555555;
+                color: #FF8C00;
             }
             QTabBar::tab:hover {
-                background: #81A1C1;
-                color: #ECEFF4;
+                background: #777777;
+                color: #FF8C00;
             }
 
             /* Config List Widget */
             QListWidget {
-                background-color: #3B4252;
-                border: 1px solid #4C566A;
-                color: #ECEFF4;
+                background-color: #252525;
+                border: 1px solid #333333;
+                color: #FF8C00;
                 font-size: 14px;
                 padding: 4px;
             }
             QListWidget::item {
-                background-color: #4C566A;
+                background-color: #333333;
                 padding: 8px;
                 margin: 2px;
-                border-radius: 5px;
+                border-radius: 1px;
             }
             QListWidget::item:selected {
-                background-color: #5E81AC;
-                color: #ECEFF4;
+                background-color: #555555;
+                color: #FF8C00;
+                border: none;
+                outline: none;
             }
             QListWidget::item:hover {
-                background-color: #81A1C1;
-                color: #ECEFF4;
+                background-color: #777777;
+                color: #FF8C00;
+            }
+            QListWidget::item:focus {
+                outline: none;
+                border: none;
             }
 
             QLabel {
-                color: #D8DEE9;
+                color: #FF8C00;
             }
 
             QPushButton {
-                background: #4C566A;
-                color: #ECEFF4;
+                background: #333333;
+                color: #FF8C00;
                 padding: 8px;
                 margin: 2px;
                 border-radius: 5px;
             }
             QPushButton::hover {
-                background: #81A1C1;
-                color: #ECEFF4;
+                background: #777777;
+                color: #FF8C00;
             }
         """)
 
