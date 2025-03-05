@@ -1,5 +1,6 @@
 import json
 import os
+from PySide6.QtGui import QPixmap
 
 
 class ModelInfo:
@@ -54,3 +55,6 @@ class ModelInfo:
             json.dump(self.to_dict(), file, indent=4)  # Save with indentation for readability
 
         print(f"Configuration saved to {file_path}")
+
+    def get_results_png(self) -> QPixmap:
+        return QPixmap(self.path + "/results.png")

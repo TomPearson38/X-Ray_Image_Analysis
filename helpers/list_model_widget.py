@@ -34,11 +34,12 @@ class ListModelWidget(QWidget):
             print("ERROR: TRAINED_MODELS_FOLDER_DOES_NOT_EXIST")
 
         for folder in os.listdir(models_dir):
-            folder_path = os.path.join(models_dir, folder, "info.json")
-            try:
-                self.configs[folder] = ModelInfo.fromPath(folder_path)
-            except FileNotFoundError:
-                print("FILE NOT FOUND")
+            if os.path.isdir(os.path.join(models_dir, folder)):
+                folder_path = os.path.join(models_dir, folder, "info.json")
+                try:
+                    self.configs[folder] = ModelInfo.fromPath(folder_path)
+                except FileNotFoundError:
+                    print(f"{folder} NOT VAILD")
 
     def populate_list(self):
         """Populates the list with config names."""
