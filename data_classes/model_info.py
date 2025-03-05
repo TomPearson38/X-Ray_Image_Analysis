@@ -58,3 +58,7 @@ class ModelInfo:
 
     def get_results_png(self) -> QPixmap:
         return QPixmap(self.path + "/results.png")
+
+    def get_best_pt_path(self) -> str:
+        valid_path = os.path.join(self.path, "weights", "best.pt")
+        return valid_path

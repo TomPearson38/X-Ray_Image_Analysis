@@ -10,10 +10,9 @@ class ListModelWidget(QWidget):
 
     config_selected = Signal(str, ModelInfo)
 
-    def __init__(self, config_folder="configs"):
+    def __init__(self):
         super().__init__()
 
-        self.config_folder = config_folder
         self.list_widget = QListWidget()
 
         layout = QVBoxLayout()

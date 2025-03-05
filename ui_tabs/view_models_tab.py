@@ -8,13 +8,12 @@ class ViewModelsTab(QWidget):
     def __init__(self):
         super().__init__()
         self.layout = QGridLayout()
-        self.config_list_widget = ListModelWidget("configs")  # Use modular widget
+        self.config_list_widget = ListModelWidget()  # Use modular widget
         self.config_list_widget.setMinimumWidth(300)
-        self.details_label = QLabel("Select a config to view details")
 
         self.layout.addWidget(self.config_list_widget, 0, 0, Qt.AlignmentFlag.AlignLeft)
 
-        self.config_list_widget.config_selected.connect(self.display_config_details)
+        self.config_list_widget.config_selected.connect(self.display_model_details)
 
         details_layout = QGridLayout()
 
@@ -69,20 +68,20 @@ class ViewModelsTab(QWidget):
         grid.addWidget(QLabel(label_text), row, 0)
         grid.addWidget(label_to_be_added, row, 1)
 
-    def display_config_details(self, config_name, config_data: ModelInfo):
+    def display_model_details(self, config_name, model: ModelInfo):
         """Displays the selected config's details."""
-        self.name_label.setText(config_data.name)
-        self.model_label.setText(config_data.model)
-        self.date_time_trained_label.setText(config_data.date_time_trained)
-        self.number_of_images_label.setText(config_data.number_of_images)
-        self.path_label.setText(config_data.path)
-        self.epoch_label.setText(str(config_data.epoch))
-        self.box_loss_label.setText(str(config_data.box_loss))
-        self.cls_loss_label.setText(str(config_data.cls_loss))
-        self.mAP_50_label.setText(str(config_data.mAP_50))
-        self.mAP_50_95_label.setText(str(config_data.mAP_50_95))
-        self.precision_label.setText(str(config_data.precision))
-        self.recall_label.setText(str(config_data.recall))
+        self.name_label.setText(model.name)
+        self.model_label.setText(model.model)
+        self.date_time_trained_label.setText(model.date_time_trained)
+        self.number_of_images_label.setText(model.number_of_images)
+        self.path_label.setText(model.path)
+        self.epoch_label.setText(str(model.epoch))
+        self.box_loss_label.setText(str(model.box_loss))
+        self.cls_loss_label.setText(str(model.cls_loss))
+        self.mAP_50_label.setText(str(model.mAP_50))
+        self.mAP_50_95_label.setText(str(model.mAP_50_95))
+        self.precision_label.setText(str(model.precision))
+        self.recall_label.setText(str(model.recall))
 
-        pixmap = config_data.get_results_png().scaled(800, 400)
+        pixmap = model.get_results_png().scaled(800, 400)
         self.results_image.setPixmap(pixmap)
