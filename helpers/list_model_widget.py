@@ -30,6 +30,8 @@ class ListModelWidget(QWidget):
         self.configs = {}
 
         models_dir = os.path.abspath("trained_models")
+        if not os.path.exists(models_dir):
+            print("ERROR: TRAINED_MODELS_FOLDER_DOES_NOT_EXIST")
 
         for folder in os.listdir(models_dir):
             folder_path = os.path.join(models_dir, folder, "info.json")
