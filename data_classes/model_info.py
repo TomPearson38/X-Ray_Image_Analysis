@@ -28,6 +28,7 @@ class ModelInfo:
 
         with open(file_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
+            data["path"] = os.path.dirname(file_path)
             return cls(**data)  # Create a Config instance from JSON data
 
     def to_dict(self):
