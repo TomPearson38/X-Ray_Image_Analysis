@@ -1,8 +1,8 @@
-import os
 from pathlib import Path
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QFileDialog, QMessageBox, QStackedLayout
 from ultralytics import YOLO
 
+from ui_tabs.select_ai_page import SelectAiPage
 from ui_tabs.view_results_page import ViewResultsPage
 
 
@@ -10,7 +10,8 @@ class AnalyseImageTab(QWidget):
     def __init__(self):
         super().__init__()
         self.selectedImage = ""
-        self.selectedAIModel = ""
+        self.selectedAIModelPath = ""
+        self.selectAIModelName = ""
 
         layout = QGridLayout()
 
@@ -41,10 +42,21 @@ class AnalyseImageTab(QWidget):
         self.stacked_layout.setCurrentIndex(0)
 
     def update_selected_model(self):
-        result = self.browse_file(os.path.abspath("trained_models/"), "PyTorch File (*.pt)")
-        if result != "" and result.endswith(".pt"):
-            self.selectedAIModel = result
-            self.selectedModelLabel.setText("..." + self.selectedAIModel[-20:])
+        # result = self.browse_file(os.path.abspath("trained_models/"), "PyTorch File (*.pt)")
+        # if result != "" and result.endswith(".pt"):
+        #     self.selectedAIModel = result
+        #     self.selectedModelLabel.setText("..." + self.selectedAIModel[-20:])
+
+        self.select_ai_widget = SelectAiPage()
+        self.select_ai_widget.model_selected.connect(self.model_selected)
+        self.select_ai_widget.switch_view.connect(self.reset_view)
+        self.stacked_layout.addWidget(self.select_ai_widget)
+        self.stacked_layout.setCurrentWidget(self.select_ai_widget)
+
+    def model_selected(self, name, path):
+        self.selectedAIModelPath = path
+        self.selectedModelLabel.setText(name)
+        self.reset_view()
 
     def update_selected_image(self):
         result = self.browse_file("", "Images (*.png *.jpg)")
@@ -60,7 +72,7 @@ class AnalyseImageTab(QWidget):
             return ""
 
     def start_image_analysis(self):
-        if (self.selectedAIModel == "" or Path(self.selectedAIModel).suffix != ".pt"):
+        if (self.selectedAIModelPath == "" or Path(self.selectedAIModelPath).suffix != ".pt"):
             errorMessage = QMessageBox()
             errorMessage.setIcon(QMessageBox.Critical)
             errorMessage.setWindowTitle("Error")
@@ -76,15 +88,21 @@ class AnalyseImageTab(QWidget):
             errorMessage.exec()
             return
 
-        model = YOLO(self.selectedAIModel)
+        model = YOLO(self.selectedAIModelPath)
         results = model(self.selectedImage)
 
         self.results_widget = ViewResultsPage(self.selectedImage, results)
         self.results_widget.switch_view.connect(self.reset_view)
         self.stacked_layout.addWidget(self.results_widget)
-        self.stacked_layout.setCurrentIndex(1)
+        self.stacked_layout.setCurrentWidget(self.results_widget)
 
     def reset_view(self):
         self.stacked_layout.setCurrentIndex(0)
-        self.stacked_layout.removeWidget(self.results_widget)
-        self.results_widget.deleteLater()
+
+        if hasattr(self, 'results_widget'):
+            self.stacked_layout.removeWidget(self.results_widget)
+            # self.results_widget.deleteLater()
+
+        elif hasattr(self, 'select_ai_widget'):
+            self.stacked_layout.removeWidget(self.select_ai_widget)
+            # self.select_ai_widget.deleteLater()

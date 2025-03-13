@@ -13,33 +13,6 @@ def app(qtbot):
     return test_app
 
 
-def test_select_ai_model(app: MainWindow):
-    """Test select model QDialogue to ensure it selects a valid file."""
-
-    mock_file_path = "C:/Users/Test/sample.pt"
-    with patch("PySide6.QtWidgets.QFileDialog.getOpenFileName", return_value=(mock_file_path, "PyTorch File (*.pt)")):
-
-        app.analyse_image_tab.update_selected_model()
-        result = app.analyse_image_tab.selectedModelLabel.text()
-
-        assert result == ("..." + mock_file_path[-20:])
-
-        assert app.analyse_image_tab.selectedAIModel == mock_file_path
-
-
-def test_incorrect_select_ai_model(app: MainWindow):
-    """Test that an invalid file extension is rejected."""
-    invalid_file = "C:/Users/Test/image.png"
-
-    with patch("PySide6.QtWidgets.QFileDialog.getOpenFileName", return_value=(invalid_file, "All Files (*)")):
-        app.analyse_image_tab.update_selected_model()
-        result = app.analyse_image_tab.selectedModelLabel.text()
-
-        assert result == ""
-
-        assert app.analyse_image_tab.selectedAIModel == ""
-
-
 def test_select_image(app: MainWindow):
     """Test select model QDialogue to ensure it selects a valid file."""
 

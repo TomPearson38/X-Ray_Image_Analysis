@@ -22,6 +22,7 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.analyse_image_tab, "Analyse Image")
         self.tabs.addTab(self.view_models_tab, "View Models")
         self.tabs.addTab(self.train_ai_tab, "Train AI")
+        self.tabs.currentChanged.connect(self.on_tab_changed)
 
         # central widget and layout
         central_widget = QWidget()
@@ -33,48 +34,127 @@ class MainWindow(QMainWindow):
         # styling
         self.apply_styles()
 
+    def on_tab_changed(self, index):
+        if index == 1:
+            self.view_models_tab.update_models()
+
     def apply_styles(self):
         self.setStyleSheet("""
             QMainWindow {
-                background-color: #2E3440;
-                color: #D8DEE9;
+                background-color: #1E1E1E;
+                color: #05f3ff;
+                font-size: 25px;
             }
 
             /* tab widget and tabs */
             QTabWidget::pane {
-                border: 1px solid #4C566A;
-                background: #3B4252;
+                border: 1px solid #333333;
+                background: #252525;
             }
             QTabBar::tab {
-                background: #4C566A;
-                color: #ECEFF4;
+                background: #333333;
+                color: #05f3ff;
                 padding: 8px;
                 margin: 2px;
                 border-radius: 5px;
             }
             QTabBar::tab:selected {
-                background: #5E81AC;
-                color: #ECEFF4;
+                background: #555555;
+                color: #05f3ff;
             }
             QTabBar::tab:hover {
-                background: #81A1C1;
-                color: #ECEFF4;
+                background: #777777;
+                color: #05f3ff;
+            }
+
+            /* Config List Widget */
+            QListWidget {
+                background-color: #252525;
+                border: 1px solid #333333;
+                color: #05f3ff;
+                font-size: 14px;
+                padding: 4px;
+            }
+            QListWidget::item {
+                background-color: #333333;
+                padding: 8px;
+                margin: 2px;
+                border-radius: 1px;
+            }
+            QListWidget::item:selected {
+                background-color: #555555;
+                color: #05f3ff;
+                border: none;
+                outline: none;
+            }
+            QListWidget::item:hover {
+                background-color: #777777;
+                color: #05f3ff;
+            }
+            QListWidget::item:focus {
+                outline: none;
+                border: none;
             }
 
             QLabel {
-                color: #D8DEE9;
+                color: #05f3ff;
             }
 
             QPushButton {
-                background: #4C566A;
-                color: #ECEFF4;
+                background: #333333;
+                color: #05f3ff;
                 padding: 8px;
                 margin: 2px;
                 border-radius: 5px;
             }
             QPushButton::hover {
-                background: #81A1C1;
-                color: #ECEFF4;
+                background: #777777;
+                color: #05f3ff;
+            }
+
+            QLineEdit {
+                background-color: #252525;
+                color: #05f3ff;
+                border: 1px solid #05f3ff;
+                padding: 6px;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+
+            QLineEdit:focus {
+                border: 1px solid #05f3ff;
+                outline: none;
+            }
+
+            QComboBox {
+                background-color: #252525;
+                color: #05f3ff;
+                border: 1px solid #05f3ff;
+                padding: 6px;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+
+            QComboBox:focus {
+                border: 1px solid #05f3ff;
+                outline: none;
+            }
+
+            QComboBox::drop-down {
+                background-color: #252525;
+                border: 1px solid #05f3ff;
+                width: 20px;
+            }
+
+            QComboBox::item {
+                background-color: #252525;
+                color: #05f3ff;
+                padding: 6px;
+            }
+
+            QComboBox::item:selected {
+                background-color: #05f3ff;
+                color: #252525;
             }
         """)
 

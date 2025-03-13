@@ -1,9 +1,11 @@
+import gc
 import os
 from PySide6.QtCore import Signal, QThread
 import sys
+import torch
 from helpers.console_output import CaptureConsoleOutputThread
 import stages.model_training
-from stages.yolo_thread import YoloThread
+from data_classes.model_info import ModelInfo
 
 
 class MainTrainPipeline(QThread):
@@ -20,9 +22,10 @@ class MainTrainPipeline(QThread):
     model_testing_text = Signal(str)
     model_testing_progress_bar = Signal(int)
 
-    def __init__(self, parent):
+    def __init__(self, parent, model_info: ModelInfo):
         QThread.__init__(self, parent)
         self._is_running = True
+        self.model_info = model_info
 
     def run(self):
         self.pipeline_flow()
@@ -79,9 +82,21 @@ class MainTrainPipeline(QThread):
         sys.stderr = self.console_thread  # Redirect stderr
         self.console_thread.start()
 
-        self.trainYoloThread = YoloThread(output_yaml, weights, img_size, batch_size, epochs, self.cleanup)
+        # self.trainYoloThread = YoloThread(output_yaml, weights, img_size, batch_size, epochs, self.cleanup)
 
-        self.trainYoloThread.start()
+        stages.model_training.train_yolo(
+            data_yaml=output_yaml,
+            output_root=os.path.abspath("trained_models"),
+            weights=weights,
+            img_size=img_size,
+            batch_size=batch_size,
+            epochs=epochs,
+            model_info=self.model_info
+        )
+        torch.cuda.empty_cache()
+        torch._C._cuda_clearCublasWorkspaces()
+        gc.collect()
+        self.cleanup()
 
     def test_model(self, model_dir):
         """Tests the trained model against previous iterations, to produce a performance score."""
@@ -89,14 +104,13 @@ class MainTrainPipeline(QThread):
         pass
 
     def cleanup(self):
-        if self.console_thread:
+        if hasattr(self, 'console_thread'):
             self.console_thread.stop()
             self.console_thread.quit()
-            self.wait()
             sys.stdout = sys.__stdout__
             sys.stderr = sys.__stderr__
 
     def exit_early(self):
         self.cleanup()
-        if self.trainYoloThread._running:
+        if hasattr(self, 'trainYoloThread') and self.trainYoloThread._running:
             self.trainYoloThread.stop()

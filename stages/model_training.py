@@ -1,9 +1,10 @@
 import os
+import pandas as pd
 import torch
 import yaml
 import datetime
 import shutil
-from ultralytics import YOLO  # Requires YOLOv5 installed from ultralytics/yolov5
+from ultralytics import YOLO
 
 
 def create_yaml(data_dir, output_path, class_names):
@@ -28,7 +29,7 @@ def create_yaml(data_dir, output_path, class_names):
     print(f"YAML file saved at: {output_path}")
 
 
-def train_yolo(data_yaml, output_root, weights="yolov5s.pt", img_size=640, batch_size=16, epochs=50):
+def train_yolo(data_yaml, output_root, model_info, weights="yolov5s.pt", img_size=640, batch_size=16, epochs=50):
     """
     Train a YOLOv5 model with the specified parameters.
 
@@ -43,11 +44,9 @@ def train_yolo(data_yaml, output_root, weights="yolov5s.pt", img_size=640, batch
     :return: Path to created model
     :rtype: str
     """
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    training_start = datetime.datetime.now()
+    timestamp = training_start.strftime("%Y%m%d_%H%M%S")
     model_dir = os.path.join(output_root, f"model_{timestamp}")
-    os.makedirs(model_dir, exist_ok=True)
-
-    print(f"Saving model artifacts in: {model_dir}")
 
     # Check if CUDA (GPU) is available and set the device
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -65,6 +64,10 @@ def train_yolo(data_yaml, output_root, weights="yolov5s.pt", img_size=640, batch
         device=device
     )
 
+    os.makedirs(model_dir, exist_ok=True)
+
+    print(f"Saving model artifacts in: {model_dir}")
+
     runs_dir = "runs/detect"  # Location YOLO saves trained models
     latest_run = sorted(os.listdir(runs_dir))[-1]  # Get the latest training run
     best_model_path = os.path.join(runs_dir, latest_run)
@@ -75,6 +78,19 @@ def train_yolo(data_yaml, output_root, weights="yolov5s.pt", img_size=640, batch
 
     # Remove old file
     shutil.rmtree(best_model_path)
+    results_df = (pd.read_csv(os.path.join(model_dir, "results.csv"))).iloc[-1].to_dict()
+
+    model_info.path = model_dir
+    model_info.date_time_trained = training_start.strftime("%Y-%m-%d__%H:%M:%S")
+    model_info.recall = results_df["metrics/recall(B)"]
+    model_info.precision = results_df["metrics/precision(B)"]
+    model_info.epoch = results_df["epoch"]
+    model_info.box_loss = results_df["train/box_loss"]
+    model_info.cls_loss = results_df["train/cls_loss"]
+    model_info.mAP_50 = results_df["metrics/mAP50(B)"]
+    model_info.mAP_50_95 = results_df["metrics/mAP50-95(B)"]
+
+    model_info.save_to_json()
 
     print(f"Model saved at: {model_dir}")
 
