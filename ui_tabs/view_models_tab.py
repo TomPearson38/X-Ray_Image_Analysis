@@ -7,7 +7,7 @@ from helpers.list_model_widget import ListModelWidget
 class ViewModelsTab(QWidget):
     def __init__(self):
         super().__init__()
-        self.layout : QGridLayout = QGridLayout()
+        self.layout = QGridLayout()
         self.config_list_widget = ListModelWidget()  # Use modular widget
         self.config_list_widget.setFixedWidth(300)
 
