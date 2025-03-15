@@ -1,3 +1,4 @@
+import os
 import signal
 import sys
 import ctypes
@@ -6,6 +7,7 @@ from PySide6.QtGui import QIcon
 
 from ui_tabs.analyse_image_tab import AnalyseImageTab
 from ui_tabs.train_ai_tab import TrainAiTab
+from ui_tabs.training_data_tab import TrainingDataTab
 from ui_tabs.view_models_tab import ViewModelsTab
 
 
@@ -18,10 +20,12 @@ class MainWindow(QMainWindow):
         self.analyse_image_tab = AnalyseImageTab()
         self.view_models_tab = ViewModelsTab()
         self.train_ai_tab = TrainAiTab()
+        self.training_data_tab = TrainingDataTab()
         self.tabs = QTabWidget()
         self.tabs.addTab(self.analyse_image_tab, "Analyse Image")
         self.tabs.addTab(self.view_models_tab, "View Models")
         self.tabs.addTab(self.train_ai_tab, "Train AI")
+        self.tabs.addTab(self.training_data_tab, "Training Data")
         self.tabs.currentChanged.connect(self.on_tab_changed)
 
         # central widget and layout
@@ -38,125 +42,17 @@ class MainWindow(QMainWindow):
         if index == 1:
             self.view_models_tab.update_models()
 
+    def resizeEvent(self, event):
+        """Adjust the column count dynamically when the window resizes."""
+        new_columns = max(1, self.width() // 200)  # Adjust column width threshold (200px per column)
+        self.training_data_tab.set_column_count(new_columns)
+        return super().resizeEvent(event)
+
     def apply_styles(self):
-        self.setStyleSheet("""
-            QMainWindow {
-                background-color: #1E1E1E;
-                color: #05f3ff;
-                font-size: 25px;
-            }
-
-            /* tab widget and tabs */
-            QTabWidget::pane {
-                border: 1px solid #333333;
-                background: #252525;
-            }
-            QTabBar::tab {
-                background: #333333;
-                color: #05f3ff;
-                padding: 8px;
-                margin: 2px;
-                border-radius: 5px;
-            }
-            QTabBar::tab:selected {
-                background: #555555;
-                color: #05f3ff;
-            }
-            QTabBar::tab:hover {
-                background: #777777;
-                color: #05f3ff;
-            }
-
-            /* Config List Widget */
-            QListWidget {
-                background-color: #252525;
-                border: 1px solid #333333;
-                color: #05f3ff;
-                font-size: 14px;
-                padding: 4px;
-            }
-            QListWidget::item {
-                background-color: #333333;
-                padding: 8px;
-                margin: 2px;
-                border-radius: 1px;
-            }
-            QListWidget::item:selected {
-                background-color: #555555;
-                color: #05f3ff;
-                border: none;
-                outline: none;
-            }
-            QListWidget::item:hover {
-                background-color: #777777;
-                color: #05f3ff;
-            }
-            QListWidget::item:focus {
-                outline: none;
-                border: none;
-            }
-
-            QLabel {
-                color: #05f3ff;
-            }
-
-            QPushButton {
-                background: #333333;
-                color: #05f3ff;
-                padding: 8px;
-                margin: 2px;
-                border-radius: 5px;
-            }
-            QPushButton::hover {
-                background: #777777;
-                color: #05f3ff;
-            }
-
-            QLineEdit {
-                background-color: #252525;
-                color: #05f3ff;
-                border: 1px solid #05f3ff;
-                padding: 6px;
-                border-radius: 5px;
-                font-size: 14px;
-            }
-
-            QLineEdit:focus {
-                border: 1px solid #05f3ff;
-                outline: none;
-            }
-
-            QComboBox {
-                background-color: #252525;
-                color: #05f3ff;
-                border: 1px solid #05f3ff;
-                padding: 6px;
-                border-radius: 5px;
-                font-size: 14px;
-            }
-
-            QComboBox:focus {
-                border: 1px solid #05f3ff;
-                outline: none;
-            }
-
-            QComboBox::drop-down {
-                background-color: #252525;
-                border: 1px solid #05f3ff;
-                width: 20px;
-            }
-
-            QComboBox::item {
-                background-color: #252525;
-                color: #05f3ff;
-                padding: 6px;
-            }
-
-            QComboBox::item:selected {
-                background-color: #05f3ff;
-                color: #252525;
-            }
-        """)
+        """Load QSS stylesheet and apply it to the app."""
+        style_path = os.path.join("helpers", "style.qss")
+        with open(style_path, "r") as file:
+            self.setStyleSheet(file.read())
 
 
 # TODO: Need to fix functionality for closing window. Ensure all threads terminate correctly.
