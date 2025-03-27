@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (QWidget, QLabel, QVBoxLayout, QGridLayout,
-                               QFrame, QScrollArea, QStackedLayout, QPushButton, QMessageBox)
+                               QFrame, QScrollArea, QStackedLayout, QPushButton, QMessageBox, QLineEdit)
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 import os
@@ -25,9 +25,15 @@ class TrainingDataTab(QWidget):
         self.grid_layout = QGridLayout(self.grid_container)
         self.scroll_area.setWidget(self.grid_container)
 
+        # Search Function
+        self.search_bar = QLineEdit()
+        self.search_bar.setPlaceholderText("Search...")
+        self.search_bar.textChanged.connect(self.filter_images)
+
         # Main Layout
         self.images_grid_layout = QGridLayout()
-        self.images_grid_layout.addWidget(self.scroll_area, 0, 0)
+        self.images_grid_layout.addWidget(self.search_bar, 0, 0)
+        self.images_grid_layout.addWidget(self.scroll_area, 1, 0)
         self.images_grid_layout_wrapper = QWidget()
         self.images_grid_layout_wrapper.setLayout(self.images_grid_layout)
 
@@ -44,6 +50,7 @@ class TrainingDataTab(QWidget):
         self.image_files = [f for f in os.listdir(self.image_dir) if f.endswith(('.jpg', '.png'))]
 
         self.list_of_item_containers = []
+        self.filtered_list = []
 
         # Add thumbnails
         for i, img_file in enumerate(self.image_files):
@@ -75,8 +82,32 @@ class TrainingDataTab(QWidget):
                                                                                                              file_name)
 
             self.list_of_item_containers.append(item_container)
+        self.filter_images()
 
-            self.update_grid()
+    def filter_images(self):
+        """Filters the images based on the contents of the search box"""
+        self.filtered_list = []
+
+        self.filtered_list = [img for img in self.list_of_item_containers
+                              if self.compare_name_to_search(img.layout(), self.search_bar.text())]
+        self.update_grid()
+
+    def get_last_item(self, layout):
+        """Get the last widget in the given layout."""
+        count = layout.count()
+        if count > 0:
+            return layout.itemAt(count - 1)
+        return None
+
+    def compare_name_to_search(self, layout, search_string):
+        """Check if the last item is a QLabel and contains the provided string."""
+        last_item = self.get_last_item(layout)
+
+        if last_item:
+            widget = last_item.widget()
+            if isinstance(widget, QLabel):  # Check if QLabel
+                return search_string.lower() in widget.text().lower()  # Check contains the search string
+        return False
 
     def set_column_count(self, count):
         """Update column count and refresh the grid."""
@@ -91,7 +122,7 @@ class TrainingDataTab(QWidget):
             self.grid_layout.itemAt(i).widget().setParent(None)
 
         # Re-add images based on new column count
-        for index, widget in enumerate(self.list_of_item_containers):
+        for index, widget in enumerate(self.filtered_list):
             row = index // self.column_count
             col = index % self.column_count
             self.grid_layout.addWidget(widget, row, col)
