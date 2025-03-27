@@ -1,4 +1,5 @@
-from PySide6.QtWidgets import (QWidget, QLabel, QVBoxLayout, QGridLayout, QFrame, QScrollArea)
+from PySide6.QtWidgets import (QWidget, QLabel, QVBoxLayout, QGridLayout,
+                               QFrame, QScrollArea, QStackedLayout, QPushButton, QMessageBox)
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 import os
@@ -9,6 +10,7 @@ class TrainingDataTab(QWidget):
     """ Tab to browse and edit YOLO dataset """
     def __init__(self):
         super().__init__()
+        self.stacked_layout = QStackedLayout()
 
         data_dir = os.path.abspath("stored_training_images")
         self.image_dir = os.path.join(data_dir, "images", "raw")
@@ -24,9 +26,15 @@ class TrainingDataTab(QWidget):
         self.scroll_area.setWidget(self.grid_container)
 
         # Main Layout
-        self.layout = QGridLayout()
-        self.layout.addWidget(self.scroll_area, 0, 0)
-        self.setLayout(self.layout)
+        self.images_grid_layout = QGridLayout()
+        self.images_grid_layout.addWidget(self.scroll_area, 0, 0)
+        self.images_grid_layout_wrapper = QWidget()
+        self.images_grid_layout_wrapper.setLayout(self.images_grid_layout)
+
+        self.stacked_layout.addWidget(self.images_grid_layout_wrapper)
+        self.stacked_layout.setCurrentIndex(0)
+
+        self.setLayout(self.stacked_layout)
 
         # Load images to display
         self.load_images()
@@ -63,7 +71,8 @@ class TrainingDataTab(QWidget):
             item_layout.addWidget(name_label)
             item_container.setLayout(item_layout)
 
-            thumb_label.mousePressEvent = lambda e, path=img_path: self.open_detail_view(path)
+            thumb_label.mousePressEvent = lambda e, path=img_path, file_name=img_file: self.open_detail_view(path,
+                                                                                                             file_name)
 
             self.list_of_item_containers.append(item_container)
 
@@ -87,8 +96,34 @@ class TrainingDataTab(QWidget):
             col = index % self.column_count
             self.grid_layout.addWidget(widget, row, col)
 
-    def open_detail_view(self, img_path):
+    def open_detail_view(self, img_path, file_name):
         """ Open selected image in a detailed view """
         annotation_path = os.path.join(self.annotation_dir, os.path.splitext(os.path.basename(img_path))[0] + ".txt")
-        self.detail_view = ImageViewer(img_path, annotation_path)
-        self.detail_view.show()
+
+        self.view_image_layout = QGridLayout()
+        backButton = QPushButton("Return To View Images")
+        backButton.pressed.connect(self.reset_layout)
+        self.view_image_layout.addWidget(backButton, 0, 0)
+        self.img_viewer_widget = ImageViewer(img_path, annotation_path, file_name)
+        self.img_viewer_widget.save_finished.connect(self.reset_layout)
+        self.view_image_layout.addWidget(self.img_viewer_widget)
+
+        self.view_image_layout_wrapper = QWidget()
+        self.view_image_layout_wrapper.setLayout(self.view_image_layout)
+
+        self.stacked_layout.addWidget(self.view_image_layout_wrapper)
+        self.stacked_layout.setCurrentWidget(self.view_image_layout_wrapper)
+
+    def reset_layout(self):
+        if self.img_viewer_widget.image_view.is_unsaved_changes():
+            reply = QMessageBox.question(self,
+                                         "Unsaved Changes",
+                                         "You have unsaved changes to the bounding boxes. "
+                                         "Do you want to exit without saving?",
+                                         QMessageBox.Yes | QMessageBox.No,
+                                         QMessageBox.No)
+            if reply == QMessageBox.No:
+                return
+
+        self.stacked_layout.setCurrentWidget(self.images_grid_layout_wrapper)
+        self.stacked_layout.removeWidget(self.view_image_layout_wrapper)
