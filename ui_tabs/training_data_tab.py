@@ -1,8 +1,9 @@
 from PySide6.QtWidgets import (QWidget, QLabel, QVBoxLayout, QGridLayout,
-                               QFrame, QScrollArea, QStackedLayout, QPushButton, QMessageBox, QLineEdit)
+                               QFrame, QScrollArea, QStackedLayout, QPushButton, QMessageBox, QLineEdit, QFileDialog)
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 import os
+import shutil
 from ui_tabs.view_image import ImageViewer
 
 
@@ -30,10 +31,15 @@ class TrainingDataTab(QWidget):
         self.search_bar.setPlaceholderText("Search...")
         self.search_bar.textChanged.connect(self.filter_images)
 
+        # Buttons
+        self.add_image_button = QPushButton("Add Image")
+        self.add_image_button.clicked.connect(self.add_image)
+
         # Main Layout
         self.images_grid_layout = QGridLayout()
         self.images_grid_layout.addWidget(self.search_bar, 0, 0)
-        self.images_grid_layout.addWidget(self.scroll_area, 1, 0)
+        self.images_grid_layout.addWidget(self.add_image_button, 0, 1)
+        self.images_grid_layout.addWidget(self.scroll_area, 1, 0, 1, 2)
         self.images_grid_layout_wrapper = QWidget()
         self.images_grid_layout_wrapper.setLayout(self.images_grid_layout)
 
@@ -52,37 +58,40 @@ class TrainingDataTab(QWidget):
         self.list_of_item_containers = []
         self.filtered_list = []
 
-        # Add thumbnails
         for i, img_file in enumerate(self.image_files):
-            img_path = os.path.join(self.image_dir, img_file)
+            self.append_images(img_file)
 
-            # Create a container widget for image + label
-            item_container = QWidget()
-            item_layout = QVBoxLayout(item_container)
-            item_layout.setAlignment(Qt.AlignCenter)
-
-            # Thumbnail
-            thumb_label = QLabel()
-            thumb_label.setPixmap(QPixmap(img_path).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-            thumb_label.setFixedSize(110, 110)  # Keeps all boxes the same size
-            thumb_label.setAlignment(Qt.AlignCenter)
-            thumb_label.setFrameStyle(QFrame.Box)  # Adds a border for consistency
-
-            # Image name
-            name_label = QLabel(img_file)
-            name_label.setAlignment(Qt.AlignCenter)
-            name_label.setFixedWidth(110)  # Keeps labels aligned
-
-            # Add to layout
-            item_layout.addWidget(thumb_label)
-            item_layout.addWidget(name_label)
-            item_container.setLayout(item_layout)
-
-            thumb_label.mousePressEvent = lambda e, path=img_path, file_name=img_file: self.open_detail_view(path,
-                                                                                                             file_name)
-
-            self.list_of_item_containers.append(item_container)
         self.filter_images()
+
+    def append_images(self, img_file):
+        img_path = os.path.join(self.image_dir, img_file)
+
+        # Create a container widget for image + label
+        item_container = QWidget()
+        item_layout = QVBoxLayout(item_container)
+        item_layout.setAlignment(Qt.AlignCenter)
+
+        # Thumbnail
+        thumb_label = QLabel()
+        thumb_label.setPixmap(QPixmap(img_path).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        thumb_label.setFixedSize(110, 110)  # Keeps all boxes the same size
+        thumb_label.setAlignment(Qt.AlignCenter)
+        thumb_label.setFrameStyle(QFrame.Box)  # Adds a border for consistency
+
+        # Image name
+        name_label = QLabel(img_file)
+        name_label.setAlignment(Qt.AlignCenter)
+        name_label.setFixedWidth(110)  # Keeps labels aligned
+
+        # Add to layout
+        item_layout.addWidget(thumb_label)
+        item_layout.addWidget(name_label)
+        item_container.setLayout(item_layout)
+
+        thumb_label.mousePressEvent = lambda e, path=img_path, file_name=img_file: self.open_detail_view(path,
+                                                                                                         file_name)
+
+        self.list_of_item_containers.append(item_container)
 
     def filter_images(self):
         """Filters the images based on the contents of the search box"""
@@ -158,3 +167,37 @@ class TrainingDataTab(QWidget):
 
         self.stacked_layout.setCurrentWidget(self.images_grid_layout_wrapper)
         self.stacked_layout.removeWidget(self.view_image_layout_wrapper)
+
+    def add_image(self):
+        # Image prompt, user selects valid image
+        result = self.browse_file("", "Images (*.png *.jpg)")
+        if result != "" and (result.endswith(".png") or result.endswith(".jpg")):
+            self.selectedImage = result
+        else:
+            return
+
+        # Correct image name extracted for destination path
+        img_file_name = os.path.basename(self.selectedImage)
+        img_destination_path = os.path.join("stored_training_images", "images", "raw", img_file_name)
+
+        # Image moved
+        shutil.copy(self.selectedImage, img_destination_path)
+
+        # Annotation file created
+        file_name_without_ext = (os.path.splitext(img_file_name)[0]) + ".txt"
+        txt_destination_path = os.path.join("stored_training_images", "labels", "raw", file_name_without_ext)
+
+        with open(txt_destination_path, 'w') as file:
+            file.write("")
+
+        self.append_images(img_file_name)  # Image added to current view
+        self.filter_images()  # Images updated
+        self.open_detail_view(img_destination_path, img_file_name)  # Detailed view opened for new img
+
+    # TODO: Remove this function and add to shared DIR
+    def browse_file(self, opendir, fileConstraints):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Select a File", opendir, fileConstraints)
+        if file_path:
+            return file_path
+        else:
+            return ""
