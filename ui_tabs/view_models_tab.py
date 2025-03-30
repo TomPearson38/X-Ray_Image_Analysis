@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout
 from PySide6.QtCore import Qt
 from data_classes.model_info import ModelInfo
-from helpers.list_model_widget import ListModelWidget
+from data_classes.list_model_widget import ListModelWidget
 
 
 class ViewModelsTab(QWidget):
@@ -9,7 +9,7 @@ class ViewModelsTab(QWidget):
         super().__init__()
         self.layout = QGridLayout()
         self.config_list_widget = ListModelWidget()  # Use modular widget
-        self.config_list_widget.setMinimumWidth(300)
+        self.config_list_widget.setFixedWidth(300)
 
         self.layout.addWidget(self.config_list_widget, 0, 0, Qt.AlignmentFlag.AlignLeft)
 
@@ -62,6 +62,10 @@ class ViewModelsTab(QWidget):
         details_layout_widget.setLayout(details_layout)
 
         self.layout.addWidget(details_layout_widget, 0, 1, Qt.AlignmentFlag.AlignCenter)
+
+        self.layout.setColumnStretch(0, 0)
+        self.layout.setColumnStretch(1, 1)
+
         self.setLayout(self.layout)
 
     def setup_details_grid(self, grid: QGridLayout, label_text: str, label_to_be_added: QLabel, row: int):

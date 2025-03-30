@@ -21,4 +21,3 @@ def test_pipeline_creation(app: MainWindow, qtbot):
     assert app.train_ai_tab.trainInProgress is True
     app.train_ai_tab.pipeline.exit_early()
     app.train_ai_tab.pipeline.quit()
-    app.train_ai_tab.pipeline.wait(1000)

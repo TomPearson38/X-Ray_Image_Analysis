@@ -48,7 +48,6 @@ class ListModelWidget(QWidget):
             self.list_widget.insertItem(0, display_name)
 
     def update_list(self):
-        # Add Logic to check if update needed
         self.load_configs()
         self.populate_list()
 
