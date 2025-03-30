@@ -145,7 +145,8 @@ class TrainingDataTab(QWidget):
         backButton.pressed.connect(self.reset_layout)
         self.view_image_layout.addWidget(backButton, 0, 0)
         self.img_viewer_widget = ImageViewer(img_path, annotation_path, file_name)
-        self.img_viewer_widget.save_finished.connect(self.reset_layout)
+        self.img_viewer_widget.save_finished_signal.connect(self.reset_layout)
+        self.img_viewer_widget.delete_image_signal.connect(self.delete_image)
         self.view_image_layout.addWidget(self.img_viewer_widget)
 
         self.view_image_layout_wrapper = QWidget()
@@ -168,6 +169,7 @@ class TrainingDataTab(QWidget):
         self.stacked_layout.setCurrentWidget(self.images_grid_layout_wrapper)
         self.stacked_layout.removeWidget(self.view_image_layout_wrapper)
 
+    # TODO add check for duplicate image name
     def add_image(self):
         # Image prompt, user selects valid image
         result = self.browse_file("", "Images (*.png *.jpg)")
@@ -201,3 +203,20 @@ class TrainingDataTab(QWidget):
             return file_path
         else:
             return ""
+
+    def delete_image(self, image_path, annotation_path, img_name):
+        for img in self.list_of_item_containers:
+            if self.compare_name_to_search(img.layout(), img_name):
+                self.reset_layout()
+                self.list_of_item_containers.remove(img)
+                self.delete_file(image_path)
+                self.delete_file(annotation_path)
+                self.filter_images()
+                return
+
+    def delete_file(self, file_path):
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            print("File deleted")
+        else:
+            print("The file does not exist")
