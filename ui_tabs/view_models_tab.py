@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout
 from PySide6.QtCore import Qt
 from data_classes.model_info import ModelInfo
-from helpers.list_model_widget import ListModelWidget
+from data_classes.list_model_widget import ListModelWidget
 
 
 class ViewModelsTab(QWidget):

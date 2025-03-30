@@ -1,7 +1,8 @@
 from pathlib import Path
-from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QFileDialog, QMessageBox, QStackedLayout
+from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QMessageBox, QStackedLayout
 from ultralytics import YOLO
 
+from helpers import file_helpers
 from ui_tabs.select_ai_page import SelectAiPage
 from ui_tabs.view_results_page import ViewResultsPage
 
@@ -42,11 +43,6 @@ class AnalyseImageTab(QWidget):
         self.stacked_layout.setCurrentIndex(0)
 
     def update_selected_model(self):
-        # result = self.browse_file(os.path.abspath("trained_models/"), "PyTorch File (*.pt)")
-        # if result != "" and result.endswith(".pt"):
-        #     self.selectedAIModel = result
-        #     self.selectedModelLabel.setText("..." + self.selectedAIModel[-20:])
-
         self.select_ai_widget = SelectAiPage()
         self.select_ai_widget.model_selected.connect(self.model_selected)
         self.select_ai_widget.switch_view.connect(self.reset_view)
@@ -59,17 +55,10 @@ class AnalyseImageTab(QWidget):
         self.reset_view()
 
     def update_selected_image(self):
-        result = self.browse_file("", "Images (*.png *.jpg)")
+        result = file_helpers.browse_file(self, "", "Images (*.png *.jpg)")
         if result != "" and (result.endswith(".png") or result.endswith(".jpg")):
             self.selectedImage = result
             self.selectedImageLabel.setText("..." + self.selectedImage[-20:])
-
-    def browse_file(self, opendir, fileConstraints):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Select a File", opendir, fileConstraints)
-        if file_path:
-            return file_path
-        else:
-            return ""
 
     def start_image_analysis(self):
         if (self.selectedAIModelPath == "" or Path(self.selectedAIModelPath).suffix != ".pt"):
@@ -101,8 +90,6 @@ class AnalyseImageTab(QWidget):
 
         if hasattr(self, 'results_widget'):
             self.stacked_layout.removeWidget(self.results_widget)
-            # self.results_widget.deleteLater()
 
         elif hasattr(self, 'select_ai_widget'):
             self.stacked_layout.removeWidget(self.select_ai_widget)
-            # self.select_ai_widget.deleteLater()

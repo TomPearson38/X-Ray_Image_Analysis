@@ -1,10 +1,10 @@
 from PySide6.QtWidgets import (QWidget, QLabel, QVBoxLayout, QGridLayout,
-                               QFrame, QScrollArea, QStackedLayout, QPushButton, QMessageBox, QLineEdit, QFileDialog)
+                               QFrame, QScrollArea, QStackedLayout, QPushButton, QMessageBox, QLineEdit)
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 import os
-import shutil
 from ui_tabs.view_image import ImageViewer
+from helpers import file_helpers
 
 
 class TrainingDataTab(QWidget):
@@ -169,54 +169,38 @@ class TrainingDataTab(QWidget):
         self.stacked_layout.setCurrentWidget(self.images_grid_layout_wrapper)
         self.stacked_layout.removeWidget(self.view_image_layout_wrapper)
 
-    # TODO add check for duplicate image name
     def add_image(self):
         # Image prompt, user selects valid image
-        result = self.browse_file("", "Images (*.png *.jpg)")
+        result = file_helpers.browse_file(self, "", "Images (*.png *.jpg)")
         if result != "" and (result.endswith(".png") or result.endswith(".jpg")):
             self.selectedImage = result
         else:
             return
 
-        # Correct image name extracted for destination path
-        img_file_name = os.path.basename(self.selectedImage)
-        img_destination_path = os.path.join("stored_training_images", "images", "raw", img_file_name)
+        new_img_folder = os.path.join("stored_training_images", "images", "raw")
+        new_txt_folder = os.path.join("stored_training_images", "labels", "raw")
+        safe_image_path, safe_image_file_name = file_helpers.create_valid_data_file_name(result,
+                                                                                         new_img_folder,
+                                                                                         new_txt_folder)
 
-        # Image moved
-        shutil.copy(self.selectedImage, img_destination_path)
+        file_helpers.move_file(result, safe_image_path)
 
         # Annotation file created
-        file_name_without_ext = (os.path.splitext(img_file_name)[0]) + ".txt"
-        txt_destination_path = os.path.join("stored_training_images", "labels", "raw", file_name_without_ext)
+        file_name_without_ext = (os.path.splitext(safe_image_file_name)[0]) + ".txt"
+        txt_destination_path = os.path.join(new_txt_folder, file_name_without_ext)
 
-        with open(txt_destination_path, 'w') as file:
-            file.write("")
+        file_helpers.create_file_empty_txt(txt_destination_path)
 
-        self.append_images(img_file_name)  # Image added to current view
+        self.append_images(safe_image_file_name)  # Image added to current view
         self.filter_images()  # Images updated
-        self.open_detail_view(img_destination_path, img_file_name)  # Detailed view opened for new img
-
-    # TODO: Remove this function and add to shared DIR
-    def browse_file(self, opendir, fileConstraints):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Select a File", opendir, fileConstraints)
-        if file_path:
-            return file_path
-        else:
-            return ""
+        self.open_detail_view(safe_image_path, safe_image_file_name)  # Detailed view opened for new img
 
     def delete_image(self, image_path, annotation_path, img_name):
         for img in self.list_of_item_containers:
             if self.compare_name_to_search(img.layout(), img_name):
                 self.reset_layout()
                 self.list_of_item_containers.remove(img)
-                self.delete_file(image_path)
-                self.delete_file(annotation_path)
+                file_helpers.delete_file(image_path)
+                file_helpers.delete_file(annotation_path)
                 self.filter_images()
                 return
-
-    def delete_file(self, file_path):
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            print("File deleted")
-        else:
-            print("The file does not exist")
