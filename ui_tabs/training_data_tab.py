@@ -33,13 +33,16 @@ class TrainingDataTab(QWidget):
 
         # Buttons
         self.add_image_button = QPushButton("Add Image")
+        self.refresh_button = QPushButton("Refresh Images")
         self.add_image_button.clicked.connect(self.add_image)
+        self.refresh_button.clicked.connect(self.refresh)
 
         # Main Layout
         self.images_grid_layout = QGridLayout()
         self.images_grid_layout.addWidget(self.search_bar, 0, 0)
         self.images_grid_layout.addWidget(self.add_image_button, 0, 1)
-        self.images_grid_layout.addWidget(self.scroll_area, 1, 0, 1, 2)
+        self.images_grid_layout.addWidget(self.refresh_button, 0, 2)
+        self.images_grid_layout.addWidget(self.scroll_area, 1, 0, 1, 3)
         self.images_grid_layout_wrapper = QWidget()
         self.images_grid_layout_wrapper.setLayout(self.images_grid_layout)
 
@@ -204,3 +207,7 @@ class TrainingDataTab(QWidget):
                 file_helpers.delete_file(annotation_path)
                 self.filter_images()
                 return
+
+    def refresh(self):
+        self.search_bar.setText("")
+        self.load_images()
