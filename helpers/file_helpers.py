@@ -33,7 +33,7 @@ def create_valid_data_file_name(source, img_folder, txt_folder):
     counter = 1
     while (os.path.exists(dest_path) or os.path.exists(os.path.join(txt_folder, new_filename + ".txt"))):
         new_filename = f"{name}({counter})"
-        new_filename_including_ext = new_filename + ext 
+        new_filename_including_ext = new_filename + ext
         dest_path = os.path.join(img_folder, new_filename_including_ext)
         counter += 1
 
