@@ -48,6 +48,40 @@ def move_file(source_path, destination_path):
     shutil.copy(source_path, destination_path)
 
 
+def read_config_file(file_path):
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as file:
+            paths = [line.strip() for line in file if line.strip()]  # Remove empty lines
+        return paths
+    return []
+
+
+def add_new_img(file_path, new_img):
+    try:
+        with open(file_path, "r+", encoding="utf-8") as file:
+            lines = file.readlines()
+
+            for i, line in enumerate(lines):
+                if line.strip() == "":  # Found a blank line
+                    lines[i] = new_img + "\n"
+                    break
+            else:
+                # No blank line found, append at the end
+                lines.append(new_img + "\n")
+
+            # Move cursor to the beginning and write updated content
+            file.seek(0)
+            file.writelines(lines)
+            file.truncate()  # Ensure no extra old content remains
+    except Exception as e:
+        print(f"Error: {e}")
+
+
 def create_file_empty_txt(file_path):
+    if os.path.exists(file_path):
+        return False
+
     with open(file_path, 'w') as file:
         file.write("")
+
+    return True

@@ -37,9 +37,9 @@ class AnalyseImageTab(QWidget):
         self.stacked_layout = QStackedLayout()
         widget_layout = QWidget()
         widget_layout.setLayout(layout)
-        self.stacked_layout.addWidget(widget_layout)
 
         self.setLayout(self.stacked_layout)
+        self.stacked_layout.addWidget(widget_layout)
         self.stacked_layout.setCurrentIndex(0)
 
     def update_selected_model(self):

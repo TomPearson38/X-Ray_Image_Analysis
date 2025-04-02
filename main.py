@@ -6,8 +6,8 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QV
 from PySide6.QtGui import QIcon
 
 from ui_tabs.analyse_image_tab import AnalyseImageTab
+from ui_tabs.dataset_config_tab import DatasetConfigTab
 from ui_tabs.train_ai_tab import TrainAiTab
-from ui_tabs.training_data_tab import TrainingDataTab
 from ui_tabs.view_models_tab import ViewModelsTab
 
 
@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
         self.analyse_image_tab = AnalyseImageTab()
         self.view_models_tab = ViewModelsTab()
         self.train_ai_tab = TrainAiTab()
-        self.training_data_tab = TrainingDataTab()
+        self.training_data_tab = DatasetConfigTab()
         self.tabs = QTabWidget()
         self.tabs.addTab(self.analyse_image_tab, "Analyse Image")
         self.tabs.addTab(self.view_models_tab, "View Models")
