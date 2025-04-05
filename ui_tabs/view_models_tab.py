@@ -54,9 +54,15 @@ class ViewModelsTab(QWidget):
         self.recall_label = QLabel("")
         self.setup_details_grid(details_layout, "Recall: ", self.recall_label, 11)
 
+        self.dataset_config_label = QLabel("")
+        self.setup_details_grid(details_layout, "Dataset Config: ", self.dataset_config_label, 12)
+
+        self.starting_model_label = QLabel("")
+        self.setup_details_grid(details_layout, "Starting Model: ", self.starting_model_label, 13)
+
         self.results_image = QLabel(self)
-        details_layout.addWidget(QLabel("Results Image: "), 12, 0, 1, 2)
-        details_layout.addWidget(self.results_image, 13, 0, 1, 2)
+        details_layout.addWidget(QLabel("Results Image: "), 14, 0, 1, 2)
+        details_layout.addWidget(self.results_image, 14, 0, 1, 2)
 
         details_layout_widget = QWidget()
         details_layout_widget.setLayout(details_layout)
@@ -86,6 +92,8 @@ class ViewModelsTab(QWidget):
         self.mAP_50_95_label.setText(str(model.mAP_50_95))
         self.precision_label.setText(str(model.precision))
         self.recall_label.setText(str(model.recall))
+        self.dataset_config_label.setText(str(model.dataset_config))
+        self.starting_model_label.setText(str(model.starting_model))
 
         pixmap = model.get_results_png().scaled(800, 400)
         self.results_image.setPixmap(pixmap)

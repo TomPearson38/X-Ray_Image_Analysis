@@ -41,6 +41,8 @@ class MainWindow(QMainWindow):
     def on_tab_changed(self, index):
         if index == 1:
             self.view_models_tab.update_models()
+        elif index == 2:
+            self.train_ai_tab.load_dataset_configs()
 
     def resizeEvent(self, event):
         """Adjust the column count dynamically when the window resizes."""

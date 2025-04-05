@@ -1,3 +1,4 @@
+import random
 import shutil
 from PySide6.QtWidgets import QFileDialog
 import os
@@ -93,3 +94,77 @@ def update_config(file_path, new_config):
             file.write(new_config)
     else:
         return False
+
+
+def count_lines_in_file(file_path):
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                return sum(1 for _ in file)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    return 0
+
+
+def count_files_in_directory(file_path):
+    if os.path.exists(file_path):
+        try:
+            return sum(
+                1 for file in os.listdir(file_path)
+                if os.path.isfile(os.path.join(file_path, file))
+            )
+        except FileNotFoundError:
+            print(f"Directory not found: {file_path}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    return 0
+
+
+def reset_training_data(train_data_dir, train_labels_dir):
+    delete_contents_of_folder(train_data_dir)
+    delete_contents_of_folder(train_labels_dir)
+
+
+def delete_contents_of_folder(dir):
+    for dirpath, dirnames, filenames in os.walk(dir):
+        for filename in filenames:
+            if filename != ".gitignore":
+                file_path = os.path.join(dirpath, filename)
+                try:
+                    os.remove(file_path)
+                except Exception as e:
+                    print(f"Failed to delete {file_path}: {e}")
+
+
+def load_training_images(list_of_images, img_src_dir, label_src_dir, root_train_ai_dir):
+    random.shuffle(list_of_images)
+    split_index = int(len(list_of_images) * 0.9)
+    train_images = list_of_images[:split_index]
+    test_images = list_of_images[split_index:]
+
+    image_train_dir = os.path.join(root_train_ai_dir, "images", "train")
+    image_test_dir = os.path.join(root_train_ai_dir, "images", "val")
+    label_train_dir = os.path.join(root_train_ai_dir, "labels", "train")
+    label_test_dir = os.path.join(root_train_ai_dir, "labels", "val")
+
+    # Make sure all dirs exist
+    for folder in [image_train_dir, image_test_dir, label_train_dir, label_test_dir]:
+        if not os.path.exists(folder):
+            raise ValueError("File Structure Corrupt")
+
+    # Copy train and test sets
+    copy_img_and_label(train_images, img_src_dir, label_src_dir, image_train_dir, label_train_dir)
+    copy_img_and_label(test_images, img_src_dir, label_src_dir, image_test_dir, label_test_dir)
+
+
+def copy_img_and_label(filenames, img_src_dir, label_src_dir, img_dest, lbl_dest):
+    for filename in filenames:
+        image_path = os.path.join(img_src_dir, filename)
+        label_name = os.path.splitext(filename)[0] + ".txt"
+        label_path = os.path.join(label_src_dir, label_name)
+
+        if os.path.isfile(image_path):
+            shutil.copy2(image_path, img_dest)
+
+        if os.path.isfile(label_path):
+            shutil.copy2(label_path, lbl_dest)

@@ -6,7 +6,8 @@ from PySide6.QtGui import QPixmap
 class ModelInfo:
     """Class to represent a configuration object."""
     def __init__(self, name, model, date_time_trained, number_of_images, path="", epoch="",
-                 box_loss="", cls_loss="", mAP_50="", mAP_50_95="", precision="", recall=""):
+                 box_loss="", cls_loss="", mAP_50="", mAP_50_95="", precision="", recall="",
+                 dataset_config="", starting_model=""):
         self.name = name
         self.model = model
         self.date_time_trained = date_time_trained
@@ -19,6 +20,8 @@ class ModelInfo:
         self.mAP_50_95 = mAP_50_95
         self.precision = precision
         self.recall = recall
+        self.dataset_config = dataset_config
+        self.starting_model = starting_model
 
     @classmethod
     def fromPath(cls, file_path):
@@ -45,6 +48,8 @@ class ModelInfo:
             "mAP_50_95": self.mAP_50_95,
             "precision": self.precision,
             "recall": self.recall,
+            "dataset_config": self.dataset_config,
+            "starting_model": self.starting_model,
         }
 
     def save_to_json(self):
