@@ -268,7 +268,14 @@ class TrainAiTab(QWidget):
                 self.stacked_layout.setCurrentIndex(0)
 
     def start_ai_train(self):
-        if self.AINameInput.text() == "" or self.epoch_num_input.text() == "" or int(self.epoch_num_input.text()) <= 0:
+        if (self.AINameInput.text() == "" or not
+                self.epoch_num_input.text().isdigit() or int(self.epoch_num_input.text()) <= 0):
+
+            errorMessage = QMessageBox()
+            errorMessage.setIcon(QMessageBox.Critical)
+            errorMessage.setWindowTitle("Error")
+            errorMessage.setText("One or more parameters is incorrect.\nPlease check your inputs.")
+            errorMessage.exec()
             return
 
         self.AINameInputInProgress.setText(self.AINameInput.text())
