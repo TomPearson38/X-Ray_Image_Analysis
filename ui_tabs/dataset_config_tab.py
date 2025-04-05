@@ -1,8 +1,6 @@
-from PySide6.QtWidgets import (QWidget, QLabel, QVBoxLayout, QGridLayout,
-                               QFrame, QStackedLayout, QPushButton,
+from PySide6.QtWidgets import (QWidget, QGridLayout,
+                               QStackedLayout, QPushButton,
                                QMessageBox, QComboBox)
-from PySide6.QtGui import QPixmap
-from PySide6.QtCore import Qt
 import os
 from data_classes.image_item_container import ImageItemContainer
 from helpers import file_helpers
