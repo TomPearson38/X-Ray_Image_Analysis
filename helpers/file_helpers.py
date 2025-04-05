@@ -1,3 +1,4 @@
+import random
 import shutil
 from PySide6.QtWidgets import QFileDialog
 import os
@@ -48,6 +49,122 @@ def move_file(source_path, destination_path):
     shutil.copy(source_path, destination_path)
 
 
+def read_config_file(file_path):
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as file:
+            paths = [line.strip() for line in file if line.strip()]  # Remove empty lines
+        return paths
+    return []
+
+
+def add_new_img(file_path, new_img):
+    try:
+        with open(file_path, "r+", encoding="utf-8") as file:
+            lines = file.readlines()
+
+            for i, line in enumerate(lines):
+                if line.strip() == "":  # Found a blank line
+                    lines[i] = new_img + "\n"
+                    break
+            else:
+                # No blank line found, append at the end
+                lines.append(new_img + "\n")
+
+            # Move cursor to the beginning and write updated content
+            file.seek(0)
+            file.writelines(lines)
+            file.truncate()  # Ensure no extra old content remains
+    except Exception as e:
+        print(f"Error: {e}")
+
+
 def create_file_empty_txt(file_path):
+    if os.path.exists(file_path):
+        return False
+
     with open(file_path, 'w') as file:
         file.write("")
+
+    return True
+
+
+def update_config(file_path, new_config):
+    if os.path.exists(file_path):
+        with open(file_path, 'w') as file:
+            file.write(new_config)
+    else:
+        return False
+
+
+def count_lines_in_file(file_path):
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                return sum(1 for _ in file)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    return 0
+
+
+def count_files_in_directory(file_path):
+    if os.path.exists(file_path):
+        try:
+            return sum(
+                1 for file in os.listdir(file_path)
+                if os.path.isfile(os.path.join(file_path, file))
+            )
+        except FileNotFoundError:
+            print(f"Directory not found: {file_path}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    return 0
+
+
+def reset_training_data(train_data_dir, train_labels_dir):
+    delete_contents_of_folder(train_data_dir)
+    delete_contents_of_folder(train_labels_dir)
+
+
+def delete_contents_of_folder(dir):
+    for dirpath, dirnames, filenames in os.walk(dir):
+        for filename in filenames:
+            if filename != ".gitignore":
+                file_path = os.path.join(dirpath, filename)
+                try:
+                    os.remove(file_path)
+                except Exception as e:
+                    print(f"Failed to delete {file_path}: {e}")
+
+
+def load_training_images(list_of_images, img_src_dir, label_src_dir, root_train_ai_dir):
+    random.shuffle(list_of_images)
+    split_index = int(len(list_of_images) * 0.9)
+    train_images = list_of_images[:split_index]
+    test_images = list_of_images[split_index:]
+
+    image_train_dir = os.path.join(root_train_ai_dir, "images", "train")
+    image_test_dir = os.path.join(root_train_ai_dir, "images", "val")
+    label_train_dir = os.path.join(root_train_ai_dir, "labels", "train")
+    label_test_dir = os.path.join(root_train_ai_dir, "labels", "val")
+
+    # Make sure all dirs exist
+    for folder in [image_train_dir, image_test_dir, label_train_dir, label_test_dir]:
+        if not os.path.exists(folder):
+            raise ValueError("File Structure Corrupt")
+
+    # Copy train and test sets
+    copy_img_and_label(train_images, img_src_dir, label_src_dir, image_train_dir, label_train_dir)
+    copy_img_and_label(test_images, img_src_dir, label_src_dir, image_test_dir, label_test_dir)
+
+
+def copy_img_and_label(filenames, img_src_dir, label_src_dir, img_dest, lbl_dest):
+    for filename in filenames:
+        image_path = os.path.join(img_src_dir, filename)
+        label_name = os.path.splitext(filename)[0] + ".txt"
+        label_path = os.path.join(label_src_dir, label_name)
+
+        if os.path.isfile(image_path):
+            shutil.copy2(image_path, img_dest)
+
+        if os.path.isfile(label_path):
+            shutil.copy2(label_path, lbl_dest)
