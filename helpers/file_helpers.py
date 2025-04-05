@@ -85,3 +85,11 @@ def create_file_empty_txt(file_path):
         file.write("")
 
     return True
+
+
+def update_config(file_path, new_config):
+    if os.path.exists(file_path):
+        with open(file_path, 'w') as file:
+            file.write(new_config)
+    else:
+        return False

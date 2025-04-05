@@ -4,8 +4,10 @@ from PySide6.QtWidgets import (QWidget, QLabel, QVBoxLayout, QGridLayout,
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 import os
+from data_classes.image_item_container import ImageItemContainer
 from helpers import file_helpers
 from ui_tabs.create_dataset import CreateDataset
+from ui_tabs.edit_config import EditConfig
 from ui_tabs.view_dataset import ViewDataset
 from ui_tabs.view_image import ImageViewer
 
@@ -22,6 +24,7 @@ class DatasetConfigTab(QWidget):
         self.annotation_dir = os.path.join(data_dir, "labels", "raw")
         self.image_files = []
         self.column_count = 3
+        self.previous_page_stack = []
 
         # Buttons
         self.create_new_config_button = QPushButton("Create New Config")
@@ -64,7 +67,9 @@ class DatasetConfigTab(QWidget):
     def set_column_count(self, count):
         if count != self.column_count:
             self.column_count = max(1, count)
-            if self.current_config:
+            if hasattr(self, "edit_config_page") and self.edit_config_page != "":
+                self.edit_config_page.set_column_count(count // 2)
+            elif self.current_config is not None:
                 self.current_config.set_column_count(count)
 
     def update_dataset_configs(self, dataset_dir):
@@ -89,32 +94,7 @@ class DatasetConfigTab(QWidget):
             self.append_images(img_file)
 
     def append_images(self, img_file):
-        img_path = os.path.join(self.image_dir, img_file)
-
-        # Create a container widget for image + label
-        item_container = QWidget()
-        item_layout = QVBoxLayout(item_container)
-        item_layout.setAlignment(Qt.AlignCenter)
-
-        # Thumbnail
-        thumb_label = QLabel()
-        thumb_label.setPixmap(QPixmap(img_path).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-        thumb_label.setFixedSize(110, 110)  # Keeps all boxes the same size
-        thumb_label.setAlignment(Qt.AlignCenter)
-        thumb_label.setFrameStyle(QFrame.Box)  # Adds a border for consistency
-
-        # Image name
-        name_label = QLabel(img_file)
-        name_label.setAlignment(Qt.AlignCenter)
-        name_label.setFixedWidth(110)  # Keeps labels aligned
-
-        # Add to layout
-        item_layout.addWidget(thumb_label)
-        item_layout.addWidget(name_label)
-        item_container.setLayout(item_layout)
-
-        thumb_label.mousePressEvent = lambda e, path=img_path, file_name=img_file: self.open_detail_view(path,
-                                                                                                         file_name)
+        item_container = ImageItemContainer(self.image_dir, img_file, self.open_detail_view)
 
         self.list_of_item_containers.append(item_container)
 
@@ -135,6 +115,7 @@ class DatasetConfigTab(QWidget):
         self.view_image_layout_wrapper.setLayout(self.view_image_layout)
 
         self.main_stacked_layout.addWidget(self.view_image_layout_wrapper)
+        self.previous_page_stack.append(self.main_stacked_layout.currentIndex())
         self.main_stacked_layout.setCurrentWidget(self.view_image_layout_wrapper)
 
     def reset_layout(self):
@@ -150,10 +131,23 @@ class DatasetConfigTab(QWidget):
                     if reply == QMessageBox.No:
                         return
 
-            self.main_stacked_layout.setCurrentWidget(self.dataset_config_grid_layout_widget_container)
+            if hasattr(self, "edit_config_page") and self.edit_config_page != "":
+                if self.edit_config_page.delete:
+                    self.current_config.set_column_count(self.edit_config_page.column_count * 2)
+                    self.edit_config_page = ""
+                    self.current_config.refresh()
+
+            try:
+                previous_page = self.previous_page_stack.pop()
+            except IndexError:
+                previous_page = 0
+
+            current_page = self.main_stacked_layout.currentIndex()
+            self.main_stacked_layout.setCurrentIndex(previous_page)
+
             self.main_stacked_layout.removeWidget(
                 self.main_stacked_layout.itemAt(
-                    self.main_stacked_layout.count() - 1
+                    current_page
                 ).widget()
             )
 
@@ -175,6 +169,7 @@ class DatasetConfigTab(QWidget):
         self.create_config_page.dataset_created_signal.connect(self.config_created)
         self.create_config_page.cancel_creation_signal.connect(self.reset_layout)
         self.main_stacked_layout.addWidget(self.create_config_page)
+        self.previous_page_stack.append(self.main_stacked_layout.currentIndex())
         self.main_stacked_layout.setCurrentWidget(self.create_config_page)
 
     def config_created(self, new_file_name):
@@ -193,13 +188,14 @@ class DatasetConfigTab(QWidget):
             if index == 0:
                 self.edit_config_button.setHidden(True)
                 self.delete_config_button.setHidden(True)
-                self.current_config = ViewDataset(self.list_of_item_containers, self.annotation_dir)
+                self.current_config = ViewDataset(self.list_of_item_containers, annotation_dir=self.annotation_dir)
             else:
                 self.edit_config_button.setHidden(False)
                 self.delete_config_button.setHidden(False)
                 selected_file = self.combobox_items[index]
                 config_path = os.path.join(self.dataset_config_dir, selected_file + ".txt")
-                self.current_config = ViewDataset(self.list_of_item_containers, self.annotation_dir, config_path)
+                self.current_config = ViewDataset(self.list_of_item_containers,
+                                                  annotation_dir=self.annotation_dir, dataset_file_path=config_path)
 
             self.current_config.set_column_count(self.column_count)
             self.view_config_stacked_layout.addWidget(self.current_config)
@@ -237,7 +233,17 @@ class DatasetConfigTab(QWidget):
         self.open_detail_view(safe_image_path, safe_image_file_name)
 
     def edit_config(self):
-        pass
+        config_name = self.combobox_items[self.dataset_config_combobox.currentIndex()]
+        config_path = os.path.join(self.dataset_config_dir, config_name + ".txt")
+
+        self.edit_config_page = EditConfig(config_path, self.list_of_item_containers, self.current_config.column_count)
+
+        self.edit_config_page.return_signal.connect(self.reset_layout)
+        self.edit_config_page.dataset_update_signal.connect(self.reset_layout)
+
+        self.main_stacked_layout.addWidget(self.edit_config_page)
+        self.previous_page_stack.append(self.main_stacked_layout.currentIndex())
+        self.main_stacked_layout.setCurrentWidget(self.edit_config_page)
 
     def delete_config(self):
         combo_box_current_index = self.dataset_config_combobox.currentIndex()

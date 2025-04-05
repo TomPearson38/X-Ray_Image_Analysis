@@ -1,0 +1,10 @@
+1. Create config selector
+    - Page to create file
+    - Select functionality    
+    - Page to select file config
+    - Edit config
+    - Delete config
+2. Train AI import config
+    - Import functionality
+    - Clean-up funct upon start
+

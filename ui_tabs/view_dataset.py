@@ -1,7 +1,9 @@
-from PySide6.QtWidgets import (QWidget, QLabel, QGridLayout,
+from typing import List
+from PySide6.QtWidgets import (QWidget, QGridLayout,
                                QScrollArea, QStackedLayout, QPushButton,
                                QLineEdit)
 from PySide6.QtCore import Signal
+from data_classes.image_item_container import ImageItemContainer
 from helpers import file_helpers
 
 
@@ -9,7 +11,9 @@ class ViewDataset(QWidget):
     """ Tab to browse and edit YOLO dataset """
     add_image_signal = Signal(str)
 
-    def __init__(self, image_item_containers, annotation_dir, dataset_file_path=None):
+    def __init__(self, image_item_containers: List[ImageItemContainer], editable=True, annotation_dir=None,
+                 dataset_file_path=None):
+
         super().__init__()
         self.stacked_layout = QStackedLayout()
 
@@ -55,7 +59,12 @@ class ViewDataset(QWidget):
         self.stacked_layout.addWidget(self.images_grid_layout_wrapper)
         self.stacked_layout.setCurrentIndex(0)
 
+        if not editable:
+            self.add_existing_image_button.setVisible(False)
+            self.add_new_image_button.setVisible(False)
+
         if self.dataset_file_path is not None:
+            self.all_containers = self.list_of_item_containers
             self.filter_images_for_config()
         self.filter_images()
 
@@ -64,25 +73,13 @@ class ViewDataset(QWidget):
         self.filtered_list = []
 
         self.filtered_list = [img for img in self.list_of_item_containers
-                              if self.compare_name_to_search(img.layout(), self.search_bar.text())]
+                              if self.compare_name_to_search(img, self.search_bar.text())]
         self.update_grid()
 
-    def get_last_item(self, layout):
-        """Get the last widget in the given layout."""
-        count = layout.count()
-        if count > 0:
-            return layout.itemAt(count - 1)
-        return None
-
-    def compare_name_to_search(self, layout, search_string):
+    def compare_name_to_search(self, img, search_string):
         """Check if the last item is a QLabel and contains the provided string."""
-        last_item = self.get_last_item(layout)
-
-        if last_item:
-            widget = last_item.widget()
-            if isinstance(widget, QLabel):  # Check if QLabel
-                return search_string.lower() in widget.text().lower()  # Check contains the search string
-        return False
+        img_label = img.get_label_text()
+        return search_string.lower() in img_label.lower()  # Check contains the search string
 
     def set_column_count(self, count):
         """Update column count and refresh the grid."""
@@ -107,10 +104,12 @@ class ViewDataset(QWidget):
 
     def refresh(self):
         self.search_bar.setText("")
+        if self.dataset_file_path is not None:
+            self.filter_images_for_config()
         self.filter_images()
 
     def update_images(self, list_of_item_containers):
-        self.list_of_item_containers = list_of_item_containers
+        self.all_containers = list_of_item_containers
         self.filter_images_for_config()
         self.filter_images()
 
@@ -118,8 +117,8 @@ class ViewDataset(QWidget):
         if self.dataset_file_path is not None:
             self.selected_files = file_helpers.read_config_file(self.dataset_file_path)
             self.filtered_list = [
-                img for img in self.list_of_item_containers
-                if any(self.compare_name_to_search(img.layout(), filename)
+                img for img in self.all_containers
+                if any(self.compare_name_to_search(img, filename)
                        for filename in self.selected_files)
             ]
 
