@@ -4,7 +4,7 @@ from PySide6.QtGui import QPixmap
 
 
 class ModelInfo:
-    """Class to represent a configuration object."""
+    """Class to represent an AI Model configuration object."""
     def __init__(self, name, model, date_time_trained, number_of_images, path="", epoch="",
                  box_loss="", cls_loss="", mAP_50="", mAP_50_95="", precision="", recall="",
                  dataset_config="", starting_model=""):
@@ -35,6 +35,7 @@ class ModelInfo:
             return cls(**data)  # Create a Config instance from JSON data
 
     def to_dict(self):
+        """Converts self into a JSON string"""
         return {
             "name": self.name,
             "model": self.model,
@@ -58,13 +59,15 @@ class ModelInfo:
         file_path = os.path.join(self.path, "info.json")
 
         with open(file_path, 'w', encoding='utf-8') as file:
-            json.dump(self.to_dict(), file, indent=4)  # Save with indentation for readability
+            json.dump(self.to_dict(), file, indent=4)  # Save with indentation
 
         print(f"Configuration saved to {file_path}")
 
     def get_results_png(self) -> QPixmap:
+        """Gets the results png"""
         return QPixmap(self.path + "/results.png")
 
     def get_best_pt_path(self) -> str:
+        """Gets the location of the best trained weights for the model"""
         valid_path = os.path.join(self.path, "weights", "best.pt")
         return valid_path

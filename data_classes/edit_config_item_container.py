@@ -5,13 +5,15 @@ from data_classes.image_item_container import ImageItemContainer
 
 
 class EditConfigItemContainer(QWidget):
+    """Adds additional functionality to a provided ImageItemContainer,
+    related to adding and removing from Configuration Files."""
     item_added = Signal(str, QWidget)
     item_removed = Signal(str, QWidget)
 
     def __init__(self, image_item_container: ImageItemContainer, is_in_current_config):
         super().__init__()
         self.image_item_container = image_item_container
-        self.layout: QGridLayout = QGridLayout()
+        self.layout = QGridLayout()
         self.is_in_current_config = is_in_current_config
 
         # Buttons
@@ -34,6 +36,7 @@ class EditConfigItemContainer(QWidget):
         self.setLayout(self.layout)
 
     def toggle_visible(self):
+        """Changes which button, add or remove, is visible. Also updates internal value of "is_in_current_config."""
         if self.is_in_current_config:
             self.item_removed.emit(self.image_item_container.get_label_text, self)
         else:
@@ -44,13 +47,16 @@ class EditConfigItemContainer(QWidget):
         self.is_in_current_config = not self.is_in_current_config
 
     def to_string(self) -> str:
+        """Returns image name."""
         return self.image_item_container.img_file
 
     def save_to_config(self) -> str:
+        """Returns image name if it exists in the current config"""
         if self.is_in_current_config:
             return self.to_string() + "\n"
         else:
             return ""
 
     def get_label_text(self) -> str:
+        """Returns the label text"""
         return self.image_item_container.get_label_text()
