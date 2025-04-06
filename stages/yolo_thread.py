@@ -6,6 +6,7 @@ import gc
 
 
 class YoloThread(threading.Thread):
+    """Thread to run train YOLO"""
     def __init__(self, output_yaml, weights, img_size, batch_size, epochs, event):
         self._running = False
         self.output_yaml = output_yaml
