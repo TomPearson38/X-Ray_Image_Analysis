@@ -3,8 +3,14 @@ import shutil
 from PySide6.QtWidgets import QFileDialog
 import os
 
+"""
+File_Helpers contains functions related to file management, creation and changes.
+They have been collected into a single file as they are used at multiple places throughout the system.
+"""
+
 
 def browse_file(self, opendir, fileConstraints):
+    """Allows the user to select a file with the provided constraints."""
     file_path, _ = QFileDialog.getOpenFileName(self, "Select a File", opendir, fileConstraints)
     if file_path:
         return file_path
@@ -13,6 +19,7 @@ def browse_file(self, opendir, fileConstraints):
 
 
 def delete_file(file_path):
+    """Deletes the provided file path's file"""
     if os.path.exists(file_path):
         os.remove(file_path)
         print("File deleted")
@@ -21,6 +28,8 @@ def delete_file(file_path):
 
 
 def create_valid_data_file_name(source, img_folder, txt_folder):
+    """Checks if a file name for an image and its related annotation text file already exists at the location.
+    If it does, it increments the name by a count, till a unique file name is found."""
     if not os.path.exists(source):
         print("Source file does not exist.")
         return
@@ -42,6 +51,7 @@ def create_valid_data_file_name(source, img_folder, txt_folder):
 
 
 def move_file(source_path, destination_path):
+    """Moves the provided file to a new location."""
     if os.path.exists(destination_path):
         print("File exists already!")
         return
@@ -50,6 +60,7 @@ def move_file(source_path, destination_path):
 
 
 def read_config_file(file_path):
+    """Reads a config file and returns its contents as a list."""
     if os.path.exists(file_path):
         with open(file_path, "r", encoding="utf-8") as file:
             paths = [line.strip() for line in file if line.strip()]  # Remove empty lines
@@ -58,10 +69,13 @@ def read_config_file(file_path):
 
 
 def add_new_img(file_path, new_img):
+    """Adds a new image name to a provided file."""
     try:
         with open(file_path, "r+", encoding="utf-8") as file:
             lines = file.readlines()
 
+            # If a file contains a blank line, the image is added, otherwise,
+            # a blankline is added and the image is added.
             for i, line in enumerate(lines):
                 if line.strip() == "":  # Found a blank line
                     lines[i] = new_img + "\n"
@@ -79,6 +93,7 @@ def add_new_img(file_path, new_img):
 
 
 def create_file_empty_txt(file_path):
+    """Creates a new empty text file."""
     if os.path.exists(file_path):
         return False
 
@@ -89,6 +104,7 @@ def create_file_empty_txt(file_path):
 
 
 def update_config(file_path, new_config):
+    """Writes the new config contents to the provided file."""
     if os.path.exists(file_path):
         with open(file_path, 'w') as file:
             file.write(new_config)
@@ -97,6 +113,7 @@ def update_config(file_path, new_config):
 
 
 def count_lines_in_file(file_path):
+    """Counts the number of lines in the provided file."""
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as file:
@@ -107,6 +124,7 @@ def count_lines_in_file(file_path):
 
 
 def count_files_in_directory(file_path):
+    """Counts the number of files in the provided directory"""
     if os.path.exists(file_path):
         try:
             return sum(
@@ -121,11 +139,13 @@ def count_files_in_directory(file_path):
 
 
 def reset_training_data(train_data_dir, train_labels_dir):
+    """Deletes the contents of the provided training data folders."""
     delete_contents_of_folder(train_data_dir)
     delete_contents_of_folder(train_labels_dir)
 
 
 def delete_contents_of_folder(dir):
+    """Recursively deletes contents contained in the provided folder, but does not delete file structure."""
     for dirpath, dirnames, filenames in os.walk(dir):
         for filename in filenames:
             if filename != ".gitignore":
@@ -137,6 +157,7 @@ def delete_contents_of_folder(dir):
 
 
 def load_training_images(list_of_images, img_src_dir, label_src_dir, root_train_ai_dir):
+    """Loads new training images into the training directory to be used in training a new model."""
     random.shuffle(list_of_images)
     split_index = int(len(list_of_images) * 0.9)
     train_images = list_of_images[:split_index]
@@ -158,6 +179,7 @@ def load_training_images(list_of_images, img_src_dir, label_src_dir, root_train_
 
 
 def copy_img_and_label(filenames, img_src_dir, label_src_dir, img_dest, lbl_dest):
+    """Copies a provided file and its associated annotation file to a new directory."""
     for filename in filenames:
         image_path = os.path.join(img_src_dir, filename)
         label_name = os.path.splitext(filename)[0] + ".txt"

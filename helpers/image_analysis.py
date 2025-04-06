@@ -3,6 +3,7 @@ from ultralytics import YOLO
 
 
 class ImageAnalysisWorker(QObject):
+    """A worker class to analyse a provided image using YOLO."""
     finished = Signal(object)
 
     def __init__(self, model_path, image_path):
