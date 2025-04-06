@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt, QRectF
 class BoundingBoxItem(QGraphicsRectItem):
     """ Custom class to handle bounding box selection/editing """
     def __init__(self, class_id, x_center, y_center, box_w, box_h, img_w,
-                 img_h, list_widget):
+                 img_h, list_widget, confidence_score=""):
 
         self.class_id = int(class_id)
         self.x_center = x_center
@@ -16,6 +16,7 @@ class BoundingBoxItem(QGraphicsRectItem):
         self.img_w = img_w
         self.img_h = img_h
         self.list_widget = list_widget
+        self.confidence_score = confidence_score
 
         x1 = (self.x_center - self.box_w / 2) * self.img_w
         y1 = (self.y_center - self.box_h / 2) * self.img_h
@@ -26,7 +27,11 @@ class BoundingBoxItem(QGraphicsRectItem):
         self.setFlag(QGraphicsRectItem.ItemIsMovable, False)
         self.setFlag(QGraphicsRectItem.ItemIsSelectable, False)
 
-        annotation_text = f"Class {self.class_id}: ({x1:.1f}, {y1:.1f})"
+        if self.confidence_score == "":
+            annotation_text = f"Class {self.class_id}: ({x1:.1f}, {y1:.1f})"
+        else:
+            annotation_text = f"({x1:.1f}, {y1:.1f}) - Confidence Score: {self.confidence_score}"
+
         list_item = QListWidgetItem(annotation_text)
         self.list_widget.addItem(list_item)
 
