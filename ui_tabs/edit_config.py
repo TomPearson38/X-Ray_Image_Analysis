@@ -8,7 +8,6 @@ from ui_tabs.view_dataset import ViewDataset
 
 
 class EditConfig(QWidget):
-    dataset_update_signal = Signal()
     return_signal = Signal()
 
     def __init__(self, path_to_config, list_of_image_containers: list[ImageItemContainer], column_count=1):
@@ -32,9 +31,9 @@ class EditConfig(QWidget):
 
         self.other_images = [obj for obj in self.converted_image_containers if not obj.is_in_current_config]
 
-        self.view_added_images = ViewDataset(self.image_in_set, False)
+        self.view_added_images = ViewDataset(self.image_in_set, False, column_count=column_count)
 
-        self.view_other_images = ViewDataset(self.other_images, False)
+        self.view_other_images = ViewDataset(self.other_images, False, column_count=column_count)
 
         self.save_button = QPushButton("Save")
         self.save_button.pressed.connect(self.save_button_pressed)
@@ -83,9 +82,11 @@ class EditConfig(QWidget):
 
         file_helpers.update_config(self.path_to_config, file_string)
 
-        self.dataset_update_signal.emit()
+        self.return_signal.emit()
 
     def return_button_pressed(self):
+        self.return_button.setDisabled(True)
+
         if self.unsaved_changes:
             reply = QMessageBox.question(self,
                                          "Unsaved Changes",
@@ -94,6 +95,7 @@ class EditConfig(QWidget):
                                          QMessageBox.Yes | QMessageBox.No,
                                          QMessageBox.No)
             if reply == QMessageBox.No:
+                self.return_button.setDisabled(False)
                 return
 
         self.delete = True

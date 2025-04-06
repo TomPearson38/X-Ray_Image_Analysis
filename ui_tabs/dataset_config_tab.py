@@ -67,6 +67,7 @@ class DatasetConfigTab(QWidget):
             self.column_count = max(1, count)
             if hasattr(self, "edit_config_page") and self.edit_config_page != "":
                 self.edit_config_page.set_column_count(count // 2)
+                self.current_config.column_count = count
             elif self.current_config is not None:
                 self.current_config.set_column_count(count)
 
@@ -131,7 +132,8 @@ class DatasetConfigTab(QWidget):
 
             if hasattr(self, "edit_config_page") and self.edit_config_page != "":
                 if self.edit_config_page.delete:
-                    self.current_config.set_column_count(self.edit_config_page.column_count * 2)
+                    self.edit_config_button.setDisabled(False)
+                    self.current_config.set_column_count(self.current_config.column_count)
                     self.edit_config_page = ""
                     self.current_config.refresh()
 
@@ -237,13 +239,14 @@ class DatasetConfigTab(QWidget):
         self.open_detail_view(safe_image_path, safe_image_file_name)
 
     def edit_config(self):
+        self.edit_config_button.setDisabled(True)
         config_name = self.combobox_items[self.dataset_config_combobox.currentIndex()]
         config_path = os.path.join(self.dataset_config_dir, config_name + ".txt")
 
-        self.edit_config_page = EditConfig(config_path, self.list_of_item_containers, self.current_config.column_count)
+        self.edit_config_page = EditConfig(config_path, self.list_of_item_containers,
+                                           self.current_config.column_count // 2)
 
         self.edit_config_page.return_signal.connect(self.reset_layout)
-        self.edit_config_page.dataset_update_signal.connect(self.reset_layout)
 
         self.main_stacked_layout.addWidget(self.edit_config_page)
         self.previous_page_stack.append(self.main_stacked_layout.currentIndex())

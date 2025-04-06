@@ -12,14 +12,14 @@ class ViewDataset(QWidget):
     add_image_signal = Signal(str)
 
     def __init__(self, image_item_containers: List[ImageItemContainer], editable=True, annotation_dir=None,
-                 dataset_file_path=None):
+                 dataset_file_path=None, column_count=3):
 
         super().__init__()
         self.stacked_layout = QStackedLayout()
 
         self.annotation_dir = annotation_dir
         self.list_of_item_containers = image_item_containers
-        self.column_count = 3
+        self.column_count = column_count
 
         # Dataset filtering
         self.dataset_file_path = dataset_file_path
