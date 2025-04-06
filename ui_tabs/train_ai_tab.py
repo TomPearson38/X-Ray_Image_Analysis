@@ -118,10 +118,10 @@ class TrainAiTab(QWidget):
 
         startTrainAiLayout.addLayout(newAIModelLayout, 1, 0, newAIModelLayout.rowCount(), 2)
 
-        self.trainFromScratchButton = QPushButton("Train from scratch")
-        self.trainFromScratchButton.pressed.connect(self.start_ai_train)
+        self.trainButton = QPushButton("Train")
+        self.trainButton.pressed.connect(self.start_ai_train)
 
-        startTrainAiLayout.addWidget(self.trainFromScratchButton, newAIModelLayout.rowCount() + 1, 0, 1, 2)
+        startTrainAiLayout.addWidget(self.trainButton, newAIModelLayout.rowCount() + 1, 0, 1, 2)
 
         self.cancelButton = QPushButton("Cancel Training")
         self.cancelButton.pressed.connect(self.confirm_cancel_training)
@@ -151,7 +151,8 @@ class TrainAiTab(QWidget):
         label.setAlignment(Qt.AlignCenter)
 
         layout.addWidget(label)
-        self.dataAugmentationTextBox = QLabel("")
+        self.dataAugmentationTextBox = QTextEdit()
+        self.dataAugmentationTextBox.setReadOnly(True)
         layout.addWidget(self.dataAugmentationTextBox, Qt.AlignmentFlag.AlignCenter)
 
         self.dataAugmentationProgressBar = QProgressBar()
@@ -281,7 +282,7 @@ class TrainAiTab(QWidget):
 
         self.AINameInputInProgress.setText(self.AINameInput.text())
         self.trainInProgress = True
-        self.trainFromScratchButton.setVisible(False)
+        self.trainButton.setVisible(False)
         self.cancelButton.setHidden(False)
         self.cancelButton.setText("Creating Pipeline...")
         self.cancelButton.setDisabled(True)
@@ -331,7 +332,7 @@ class TrainAiTab(QWidget):
         self.cancelButton.setVisible(False)
         self.switch_view_widget.setVisible(False)
         self.stacked_layout.setCurrentIndex(0)
-        self.trainFromScratchButton.setVisible(True)
+        self.trainButton.setVisible(True)
 
     def stop_training(self):
         if (self.pipeline and self.pipeline._is_running):
@@ -343,7 +344,7 @@ class TrainAiTab(QWidget):
         self.dataAugmentationProgressBar.setValue(progress)
 
     def update_data_augmentation_text(self, update):
-        self.dataAugmentationTextBox.setText(self.dataAugmentationTextBox.text() + " " + update)
+        self.dataAugmentationTextBox.append(update)
 
     def update_model_training_progress_bar(self, progress):
         self.trainingProgressBar.setValue(progress)
