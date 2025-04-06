@@ -1,13 +1,16 @@
 from pathlib import Path
 from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QMessageBox, QStackedLayout
-from ultralytics import YOLO
+from PySide6.QtCore import QThread, Slot, Signal
 
 from helpers import file_helpers
+from helpers.image_analysis import ImageAnalysisWorker
 from ui_tabs.select_ai_page import SelectAiPage
 from ui_tabs.view_results_page import ViewResultsPage
 
 
 class AnalyseImageTab(QWidget):
+    new_image_signal = Signal(str, str, str)
+
     def __init__(self):
         super().__init__()
         self.selectedImage = ""
@@ -77,11 +80,24 @@ class AnalyseImageTab(QWidget):
             errorMessage.exec()
             return
 
-        model = YOLO(self.selectedAIModelPath)
-        results = model(self.selectedImage)
+        # Setup worker and thread
+        self.thread = QThread()
+        self.worker = ImageAnalysisWorker(self.selectedAIModelPath, self.selectedImage)
+        self.worker.moveToThread(self.thread)
 
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.on_analysis_finished)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+
+        self.thread.start()
+
+    @Slot(object)
+    def on_analysis_finished(self, results):
         self.results_widget = ViewResultsPage(self.selectedImage, results)
         self.results_widget.switch_view.connect(self.reset_view)
+        self.results_widget.new_image_signal.connect(self.new_image)
         self.stacked_layout.addWidget(self.results_widget)
         self.stacked_layout.setCurrentWidget(self.results_widget)
 
@@ -93,3 +109,12 @@ class AnalyseImageTab(QWidget):
 
         elif hasattr(self, 'select_ai_widget'):
             self.stacked_layout.removeWidget(self.select_ai_widget)
+
+    def new_image(self, img_path, txt_path, file_name):
+        self.reset_view()
+        self.new_image_signal.emit(img_path, txt_path, file_name)
+
+    def delete_image(self, image_path, annotation_path):
+        self.reset_view()
+        file_helpers.delete_file(image_path)
+        file_helpers.delete_file(annotation_path)

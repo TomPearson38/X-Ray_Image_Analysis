@@ -27,6 +27,7 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.train_ai_tab, "Train AI")
         self.tabs.addTab(self.training_data_tab, "Training Data")
         self.tabs.currentChanged.connect(self.on_tab_changed)
+        self.analyse_image_tab.new_image_signal.connect(self.load_new_image)
 
         # central widget and layout
         central_widget = QWidget()
@@ -55,6 +56,13 @@ class MainWindow(QMainWindow):
         style_path = os.path.join("helpers", "style.qss")
         with open(style_path, "r") as file:
             self.setStyleSheet(file.read())
+
+    def load_new_image(self, img_path, txt_path, file_name):
+        self.training_data_tab.add_image(safe_image_path=img_path,
+                                         txt_destination_path=txt_path,
+                                         safe_image_file_name=file_name)
+
+        self.tabs.setCurrentWidget(self.training_data_tab)
 
 
 # TODO: Need to fix functionality for closing window. Ensure all threads terminate correctly.

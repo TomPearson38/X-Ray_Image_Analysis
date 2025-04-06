@@ -1,5 +1,6 @@
 import gc
 import os
+import shutil
 from PySide6.QtCore import Signal, QThread
 import sys
 import torch
@@ -35,6 +36,10 @@ class MainTrainPipeline(QThread):
         self.dataset_config_dir = os.path.join(data_dir, "datasets")
         self.image_dir = os.path.join(data_dir, "images", "raw")
         self.annotation_dir = os.path.join(data_dir, "labels", "raw")
+        runs_dir = os.path.join("runs", "detect")
+
+        if os.path.exists(runs_dir):
+            shutil.rmtree(runs_dir)
 
     def run(self):
         self.pipeline_flow()

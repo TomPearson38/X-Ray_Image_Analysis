@@ -151,16 +151,20 @@ class DatasetConfigTab(QWidget):
 
     def delete_image(self, image_path, annotation_path, img_name):
         for img in self.list_of_item_containers:
-            if self.compare_name_to_search(img.layout(), img_name):
+            if self.compare_name_to_search(img, img_name):
                 self.reset_layout()
                 self.list_of_item_containers.remove(img)
                 file_helpers.delete_file(image_path)
                 file_helpers.delete_file(annotation_path)
-                self.filter_images()
                 break
 
         if self.current_config:
             self.current_config.update_images(self.list_of_item_containers)
+
+    def compare_name_to_search(self, img, search_string):
+        """Check if the last item is a QLabel and contains the provided string."""
+        img_label = img.get_label_text()
+        return search_string.lower() in img_label.lower()  # Check contains the search string
 
     def create_config(self):
         self.create_config_page = CreateDataset(self.dataset_config_dir)
@@ -201,27 +205,29 @@ class DatasetConfigTab(QWidget):
 
             self.current_config.add_image_signal.connect(self.add_image)
 
-    def add_image(self, path_to_config=""):
-        # Image prompt, user selects valid image
-        result = file_helpers.browse_file(self, "", "Images (*.png *.jpg)")
-        if result != "" and (result.endswith(".png") or result.endswith(".jpg")):
-            self.selectedImage = result
-        else:
-            return
+    def add_image(self, path_to_config="", safe_image_path="", txt_destination_path="", safe_image_file_name=""):
+        if safe_image_path == "":
+            # Image prompt, user selects valid image
+            result = file_helpers.browse_file(self, "", "Images (*.png *.jpg)")
+            if result != "" and (result.endswith(".png") or result.endswith(".jpg")):
+                self.selectedImage = result
+            else:
+                return
 
-        new_img_folder = os.path.join("stored_training_images", "images", "raw")
-        new_txt_folder = os.path.join("stored_training_images", "labels", "raw")
-        safe_image_path, safe_image_file_name = file_helpers.create_valid_data_file_name(result,
-                                                                                         new_img_folder,
-                                                                                         new_txt_folder)
+            new_img_folder = os.path.join("stored_training_images", "images", "raw")
+            new_txt_folder = os.path.join("stored_training_images", "labels", "raw")
+            safe_image_path, safe_image_file_name = file_helpers.create_valid_data_file_name(result,
+                                                                                             new_img_folder,
+                                                                                             new_txt_folder)
 
-        file_helpers.move_file(result, safe_image_path)
+            file_helpers.move_file(result, safe_image_path)
 
-        # Annotation file created
-        file_name_without_ext = (os.path.splitext(safe_image_file_name)[0]) + ".txt"
-        txt_destination_path = os.path.join(new_txt_folder, file_name_without_ext)
+        if txt_destination_path == "":
+            # Annotation file created
+            file_name_without_ext = (os.path.splitext(safe_image_file_name)[0]) + ".txt"
+            txt_destination_path = os.path.join(new_txt_folder, file_name_without_ext)
 
-        file_helpers.create_file_empty_txt(txt_destination_path)
+            file_helpers.create_file_empty_txt(txt_destination_path)
 
         if path_to_config != "":
             file_helpers.add_new_img(path_to_config, file_name_without_ext)
