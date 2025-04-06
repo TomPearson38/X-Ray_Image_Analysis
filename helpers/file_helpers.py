@@ -190,3 +190,20 @@ def copy_img_and_label(filenames, img_src_dir, label_src_dir, img_dest, lbl_dest
 
         if os.path.isfile(label_path):
             shutil.copy2(label_path, lbl_dest)
+
+
+def remove_filename_from_configs(target_filename, config_dir):
+    """Checks each config for the file to be deleted and removes it."""
+    for filename in os.listdir(config_dir):
+        filepath = os.path.join(config_dir, filename)
+
+        with open(filepath, 'r') as f:
+            lines = f.readlines()
+
+        # Remove the target filename if it exists
+        new_lines = [line.strip() for line in lines if line.strip() != target_filename]
+
+        # Only rewrite the file if something changed
+        if len(new_lines) != len(lines):
+            with open(filepath, 'w') as f:
+                f.write('\n'.join(new_lines) + '\n')  # Ensures exactly one newline at the end

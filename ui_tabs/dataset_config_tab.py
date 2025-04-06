@@ -158,6 +158,7 @@ class DatasetConfigTab(QWidget):
                 self.list_of_item_containers.remove(img)
                 file_helpers.delete_file(image_path)
                 file_helpers.delete_file(annotation_path)
+                file_helpers.remove_filename_from_configs(img_name, self.dataset_config_dir)
                 break
 
         if self.current_config:
