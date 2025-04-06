@@ -51,9 +51,9 @@ class DatasetConfigTab(QWidget):
         self.dataset_config_grid_layout_widget_container = QWidget()
         self.dataset_config_grid_layout_widget_container.setLayout(self.dataset_config_grid_layout)
 
-        self.main_stacked_layout.addWidget(self.dataset_config_grid_layout_widget_container)
-
         self.setLayout(self.main_stacked_layout)
+
+        self.main_stacked_layout.addWidget(self.dataset_config_grid_layout_widget_container)
 
         self.load_images()
 

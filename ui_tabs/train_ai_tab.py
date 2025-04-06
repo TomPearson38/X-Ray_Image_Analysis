@@ -39,6 +39,8 @@ class TrainAiTab(QWidget):
         self.mainLayout.addWidget(self.switch_view_widget, 0, 0, 2, 2)
         self.switch_view_widget.setHidden(True)
 
+        self.setLayout(self.mainLayout)
+
         self.stacked_layout = QStackedLayout()
         self.mainLayout.addLayout(self.stacked_layout, 2, 0, 1, 2)
 
@@ -53,7 +55,6 @@ class TrainAiTab(QWidget):
         self.stacked_layout.addWidget(self.create_ai_train_gui())
         self.stacked_layout.addWidget(self.create_select_model())
 
-        self.setLayout(self.mainLayout)
         self.stacked_layout.setCurrentIndex(0)
 
     def create_start_train_ai_gui(self) -> QWidget:

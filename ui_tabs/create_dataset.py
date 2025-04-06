@@ -33,10 +33,10 @@ class CreateDataset(QWidget):
 
         # Buttons Layout
         self.stacked_buttons_layout = QGridLayout()
-        self.stacked_buttons_layout.addWidget(self.create_dataset_button, 0, 0)
-        self.stacked_buttons_layout.addWidget(self.cancel_create_dataset_button, 0, 1)
         self.stacked_buttons_layout_wrapper_widget = QWidget()
         self.stacked_buttons_layout_wrapper_widget.setLayout(self.stacked_buttons_layout)
+        self.stacked_buttons_layout.addWidget(self.create_dataset_button, 0, 0)
+        self.stacked_buttons_layout.addWidget(self.cancel_create_dataset_button, 0, 1)
 
         self.main_layout.addWidget(self.page_label, 0, 0, 1, 2, Qt.AlignmentFlag.AlignHCenter)
         self.main_layout.addWidget(self.name_label, 1, 0)

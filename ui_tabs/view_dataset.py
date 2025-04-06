@@ -38,19 +38,16 @@ class ViewDataset(QWidget):
 
         # Buttons
         self.add_new_image_button = QPushButton("Add New Image")
-        self.add_existing_image_button = QPushButton("Add Existing Image")
         self.refresh_button = QPushButton("Refresh Images")
         self.add_new_image_button.clicked.connect(self.add_image)
         self.refresh_button.clicked.connect(self.refresh)
-        self.add_existing_image_button.pressed.connect(self.add_existing_image)
 
         # Main Layout
         self.images_grid_layout = QGridLayout()
         self.images_grid_layout.addWidget(self.search_bar, 0, 0)
         self.images_grid_layout.addWidget(self.add_new_image_button, 0, 1)
-        self.images_grid_layout.addWidget(self.add_existing_image_button, 0, 2)
-        self.images_grid_layout.addWidget(self.refresh_button, 0, 3)
-        self.images_grid_layout.addWidget(self.scroll_area, 1, 0, 1, 4)
+        self.images_grid_layout.addWidget(self.refresh_button, 0, 2)
+        self.images_grid_layout.addWidget(self.scroll_area, 1, 0, 1, 3)
         self.images_grid_layout_wrapper = QWidget()
         self.images_grid_layout_wrapper.setLayout(self.images_grid_layout)
 
@@ -60,7 +57,6 @@ class ViewDataset(QWidget):
         self.stacked_layout.setCurrentIndex(0)
 
         if not editable:
-            self.add_existing_image_button.setVisible(False)
             self.add_new_image_button.setVisible(False)
 
         if self.dataset_file_path is not None:
