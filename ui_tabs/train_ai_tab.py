@@ -1,4 +1,5 @@
 import re
+import threading
 from PySide6.QtWidgets import (QWidget, QVBoxLayout,
                                QLabel, QGridLayout, QPushButton, QLineEdit, QComboBox,
                                QStackedLayout, QFrame, QMessageBox, QProgressBar, QTextEdit)
@@ -304,7 +305,7 @@ class TrainAiTab(QWidget):
         self.pipeline.model_training_progress_bar.connect(self.update_model_training_progress_bar)
         self.pipeline.model_testing_text.connect(self.update_testing_text)
         self.pipeline.model_testing_progress_bar.connect(self.update_data_augmentation_progress_bar)
-        self.pipeline.pipeline_finished.connect(self.cancel_training)
+        self.pipeline.pipeline_finished.connect(self.cleanup_training)
 
         self.pipeline.start()
 
@@ -323,22 +324,32 @@ class TrainAiTab(QWidget):
         result = confirmMessageBox.exec()
 
         if (result == QMessageBox.Yes):
-            self.cancel_training()
+            thread = threading.Thread(target=self.cancel_training)
+            thread.start()
 
     def cancel_training(self):
+        self.cancelButton.setEnabled(False)
+        self.cancelButton.setText("Cancelling...")
         if (self.pipeline and self.pipeline._is_running):
             self.pipeline.stop()
             self.pipeline.wait()
-        self.dataAugmentationTextBox.clear()
-        self.dataAugmentationProgressBar.setValue(0)
-        self.modelTrainingTextBox.clear()
-        self.trainingProgressBar.setValue(0)
+        self.cleanup_training()
 
-        self.trainInProgress = False
-        self.cancelButton.setVisible(False)
-        self.switch_view_widget.setVisible(False)
-        self.stacked_layout.setCurrentIndex(0)
-        self.trainButton.setVisible(True)
+    def cleanup_training(self):
+        if (self.pipeline and self.pipeline.is_cleaned_up is False):
+            self.dataAugmentationTextBox.clear()
+            self.dataAugmentationProgressBar.setValue(0)
+            self.modelTrainingTextBox.clear()
+            self.trainingProgressBar.setValue(0)
+
+            self.trainInProgress = False
+            self.cancelButton.setVisible(False)
+            self.switch_view_widget.setVisible(False)
+            self.cancelButton.setText("Cancel Training")
+            self.stacked_layout.setCurrentIndex(0)
+            self.trainButton.setVisible(True)
+
+            self.pipeline.is_cleaned_up = True
 
     def update_data_augmentation_progress_bar(self, progress):
         self.dataAugmentationProgressBar.setValue(progress)

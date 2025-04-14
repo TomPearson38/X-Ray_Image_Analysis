@@ -31,6 +31,7 @@ class MainTrainPipeline(QThread):
         QThread.__init__(self, parent)
         self._is_running = True
         self.model_info = model_info
+        self.is_cleaned_up = False
         self.data_dir = os.path.abspath("data")  # Path to the dataset directory
         self.train_data_dir = os.path.join(self.data_dir, "images")
         self.train_labels_dir = os.path.join(self.data_dir, "labels")
