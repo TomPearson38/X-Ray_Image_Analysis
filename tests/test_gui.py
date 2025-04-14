@@ -14,6 +14,7 @@ def app(qtbot):
 
 
 def test_first_tab(app: MainWindow, qtbot):
+    """Tests if the first tab is able to be selected"""
     assert app.tabs.currentIndex() == 0
 
     tab_bar = app.tabs.tabBar()
@@ -23,6 +24,7 @@ def test_first_tab(app: MainWindow, qtbot):
 
 
 def test_second_tab(app: MainWindow, qtbot):
+    """Tests if the second tab is able to be selected"""
     assert app.tabs.currentIndex() == 0
 
     tab_bar = app.tabs.tabBar()

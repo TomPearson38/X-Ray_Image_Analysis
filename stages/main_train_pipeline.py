@@ -167,8 +167,3 @@ class MainTrainPipeline(QThread):
             self.console_thread.quit()
             sys.stdout = sys.__stdout__
             sys.stderr = sys.__stderr__
-
-    def exit_early(self):
-        self.cleanup()
-        if hasattr(self, 'trainYoloThread') and self.trainYoloThread._running:
-            self.trainYoloThread.stop()
