@@ -207,3 +207,14 @@ def remove_filename_from_configs(target_filename, config_dir):
         if len(new_lines) != len(lines):
             with open(filepath, 'w') as f:
                 f.write('\n'.join(new_lines) + '\n')  # Ensures exactly one newline at the end
+
+
+def delete_folder(provided_path):
+    if os.path.exists(provided_path):
+        if os.path.isdir(provided_path):
+            shutil.rmtree(provided_path)
+            print(f"Deleted: {provided_path}")
+        else:
+            print(f"Path is not a folder: {provided_path}")
+    else:
+        print(f"Folder does not exist: {provided_path}")

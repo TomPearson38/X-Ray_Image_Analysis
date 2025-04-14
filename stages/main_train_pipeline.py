@@ -1,6 +1,9 @@
+import datetime
 import gc
 import os
 import shutil
+import subprocess
+import time
 from PySide6.QtCore import Signal, QThread
 import sys
 import torch
@@ -94,7 +97,6 @@ class MainTrainPipeline(QThread):
         """
         Uses the augmented data to create a trained model based on the parameters.
         """
-        # TODO: Create a config file to store this information
 
         class_names = ["0"]  # List of class names, only 1 flaw, so only one class
         output_yaml = os.path.abspath("data/dataset_yaml/dataset.yaml")  # Path to save the YAML file
@@ -111,25 +113,43 @@ class MainTrainPipeline(QThread):
         # Create YAML file for YOLO to use
         stages.model_training.create_yaml(self.data_dir, output_yaml, class_names)
 
-        # Create an instance of the CaptureConsoleOutputThread to capture the YOLO output to print to the GUI.
-        # TODO: Link this to a log file to store the information being created.
-        self.console_thread = CaptureConsoleOutputThread()
+        training_start = datetime.datetime.now()
+        timestamp = training_start.strftime("%Y%m%d_%H%M%S")
+        model_dir = os.path.join(os.path.abspath("trained_models"), f"model_{timestamp}")
+
+        train_yolo_path = os.path.join(os.path.abspath("stages"), "train_model.py")
+        training_start = training_start.strftime("%Y-%m-%d__%H:%M:%S")
+        command = [
+            "pythonw", train_yolo_path,
+            "--data_yaml", output_yaml,
+            "--weights", weights,
+            "--training_start", training_start,
+            "--img_size", str(img_size),
+            "--model_dir", model_dir,
+            "--batch_size", str(batch_size),
+            "--epochs", str(epochs),
+            "--model_info", str(self.model_info.to_json())
+        ]
+
+        self.process = subprocess.Popen(command,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.STDOUT,
+                                        bufsize=1,
+                                        universal_newlines=True,
+                                        encoding='utf-8',
+                                        errors='replace')
+
+        self.console_thread = CaptureConsoleOutputThread(self.process)
         self.console_thread.output_written.connect(self.model_training_text)
-        sys.stdout = self.console_thread  # Redirect stdout
-        sys.stderr = self.console_thread  # Redirect stderr
         self.console_thread.start()
 
-        # self.trainYoloThread = YoloThread(output_yaml, weights, img_size, batch_size, epochs, self.cleanup)
+        while self.process.poll() is None:
+            if self._is_running is False:
+                self.process.terminate()
+                self.process.wait()
+            else:
+                time.sleep(100)
 
-        stages.model_training.train_yolo(
-            data_yaml=output_yaml,
-            output_root=os.path.abspath("trained_models"),
-            weights=weights,
-            img_size=img_size,
-            batch_size=batch_size,
-            epochs=epochs,
-            model_info=self.model_info
-        )
         torch.cuda.empty_cache()
         torch._C._cuda_clearCublasWorkspaces()
         gc.collect()

@@ -34,6 +34,12 @@ class ModelInfo:
             data["path"] = os.path.dirname(file_path)
             return cls(**data)  # Create a Config instance from JSON data
 
+    @classmethod
+    def from_json(cls, json_str):
+        """Creates an instance from a JSON string."""
+        data = json.loads(json_str)
+        return cls(**data)
+
     def to_dict(self):
         """Converts self into a JSON string"""
         return {
@@ -52,6 +58,12 @@ class ModelInfo:
             "dataset_config": self.dataset_config,
             "starting_model": self.starting_model,
         }
+
+    def to_json(self):
+        """Returns an instance of the object as a Json string."""
+        config_dict = self.to_dict()
+        json_str = json.dumps(config_dict, indent=4, ensure_ascii=False)
+        return json_str
 
     def save_to_json(self):
         """Saves the configuration to a JSON file at the given folder path."""
