@@ -3,8 +3,6 @@ opencv_python==4.10.0.84
 pandas==2.2.3
 Pillow==11.2.1
 PySide6==6.9.0
-PySide6_Addons==6.8.1.1
-pytest==8.3.4
 PyYAML==6.0.2
 torch==2.5.1
 ultralytics==8.3.58
