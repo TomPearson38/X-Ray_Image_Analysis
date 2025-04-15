@@ -1,29 +1,32 @@
 from PySide6.QtCore import QThread, Signal
-import queue
 
 
 class CaptureConsoleOutputThread(QThread):
-    """ Captures the contents that would normally be written to the console and emmits them as a signal to the GUI. """
-
+    """ Captures the contents that would normally be written to the console and emits them as a signal to the GUI. """
     output_written = Signal(str)  # Signal to update GUI
 
-    def __init__(self):
+    def __init__(self, process):
         super().__init__()
-        self.queue = queue.Queue()
+        self.process = process
         self.running = True
 
-    def write(self, text):
-        if text.strip():
-            self.queue.put(text)
-
     def run(self):
-        """ Continuously check for new console output and emit it. """
-        while self.running:
-            try:
-                text = self.queue.get(timeout=0.1)
-                self.output_written.emit(text)
-            except queue.Empty:
-                continue
+        """ Starts the capture process """
+        buffer = ""
+        try:
+            while self.running:
+                char = self.process.stdout.read(1)
+                if char == '' and self.process.poll() is not None:
+                    break  # Process finished and nothing left to read
+
+                if char in ('\n', '\r'):
+                    if buffer:
+                        self.output_written.emit(buffer)
+                        buffer = ""
+                elif char:
+                    buffer += char
+        except Exception as e:
+            self.output_written.emit(f"Error capturing output: {str(e)}")
 
     def stop(self):
         """ Stop capturing output """
@@ -32,4 +35,4 @@ class CaptureConsoleOutputThread(QThread):
         self.wait()
 
     def flush(self):
-        pass  # Required for compatibility
+        pass  # Required for compatibility when overriding sys.stdout

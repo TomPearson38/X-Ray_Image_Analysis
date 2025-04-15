@@ -8,6 +8,8 @@ import cv2
 
 
 class ScrollableQGraphicsView(QGraphicsView):
+    """Displays a provided image and its related annotations.
+    Facilitates functionalities such as zoom, adding annotations, saving annotations and deletion."""
     annotation_added = Signal()
 
     def __init__(self, image_path, annotation_path, annotation_list):
@@ -44,7 +46,6 @@ class ScrollableQGraphicsView(QGraphicsView):
 
     def load_annotations(self):
         """ Load YOLO bounding boxes and convert to pixel coordinates """
-
         if os.path.exists(self.annotation_path):
             with open(self.annotation_path, "r") as f:
                 for line in f.readlines():
@@ -53,10 +54,11 @@ class ScrollableQGraphicsView(QGraphicsView):
                     box = BoundingBoxItem(class_id, x_center, y_center, box_w, box_h, self.img_w, self.img_h,
                                           self.annotation_list)
 
-                    self.scene.addItem(box)
+                    self.scene.addItem(box)  # Adds bounding box to image scene
                     self.bounding_boxes.append(box)
 
     def save_annotations(self) -> str:
+        """Converts all bounding box annotations to a string."""
         new_annotations_txt = ""
         length_of_list = len(self.bounding_boxes)
         if length_of_list != 0:
@@ -79,12 +81,14 @@ class ScrollableQGraphicsView(QGraphicsView):
                 box.setSelected(False)
 
     def add_annotation(self):
+        """Allows the user to draw on the image, to create a new annotation."""
         self.setCursor(Qt.CrossCursor)  # Change cursor to crosshair for drawing
         self.drawing_box = None
         self.start_point = None
         self.is_adding_box = True
 
     def cancel_add_annotation(self):
+        """Cancels adding an annotation."""
         self.is_adding_box = False
 
     def delete_selected_annotation(self):
@@ -124,7 +128,6 @@ class ScrollableQGraphicsView(QGraphicsView):
 
     def apply_zoom(self):
         """ Apply the zoom to the entire scene (image and bounding boxes) """
-        # Apply scale transformation to the entire scene (image and bounding boxes)
         self.scene.setSceneRect(self.scene.itemsBoundingRect())  # Make sure the scene updates its bounding box
         self.setTransform(self.transform().scale(self.scale_factor, self.scale_factor))
 
@@ -148,7 +151,7 @@ class ScrollableQGraphicsView(QGraphicsView):
             super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
-        """ Finalize the bounding box and add it to the annotation list when the mouse is released """
+        """ Finalise the bounding box and add it to the annotation list when the mouse is released """
         if self.drawing_box and self.start_point:
             end_point = self.mapToScene(event.pos())
             rect = QRectF(self.start_point, end_point).normalized()
@@ -172,4 +175,5 @@ class ScrollableQGraphicsView(QGraphicsView):
             super().mouseReleaseEvent(event)
 
     def is_unsaved_changes(self) -> bool:
+        """Checks for unsaved changes when attempting to return to previous view."""
         return self.unsaved_changes

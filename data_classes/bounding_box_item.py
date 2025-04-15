@@ -18,11 +18,13 @@ class BoundingBoxItem(QGraphicsRectItem):
         self.list_widget = list_widget
         self.confidence_score = confidence_score
 
+        # Calculates coordinates for drawing the bounding box
         x1 = (self.x_center - self.box_w / 2) * self.img_w
         y1 = (self.y_center - self.box_h / 2) * self.img_h
         rect = QRectF(x1, y1, self.box_w * self.img_w, self.box_h * self.img_h)
         super().__init__(rect)
 
+        # Draws bounding box
         self.setPen(QPen(Qt.red, 2))
         self.setFlag(QGraphicsRectItem.ItemIsMovable, False)
         self.setFlag(QGraphicsRectItem.ItemIsSelectable, False)
@@ -40,6 +42,8 @@ class BoundingBoxItem(QGraphicsRectItem):
 
     @classmethod
     def from_rect(cls, class_id, rect: QRectF, img_w, img_h, list_widget):
+        """Allows bounding box to be loaded from a rectangle drawn by the user,
+        instead of from a YOLO annotation file."""
         rect_vals = rect.getRect()
 
         box_w = rect_vals[2] / img_w
@@ -52,5 +56,6 @@ class BoundingBoxItem(QGraphicsRectItem):
                    img_h, list_widget)
 
     def convert_to_string(self, img_w, img_h) -> str:
+        """Converts bounding box to string to be able to be saved to YOLO annotation file."""
         return_statement = f"{self.class_id} {self.x_center} {self.y_center} {self.box_w} {self.box_h}"
         return return_statement

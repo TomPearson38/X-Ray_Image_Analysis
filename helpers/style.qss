@@ -1,3 +1,5 @@
+/* Contains styling for the application. Qt loads this information a runtime. */
+
 QMainWindow {
     background-color: #1E1E1E;
     color: #05f3ff;

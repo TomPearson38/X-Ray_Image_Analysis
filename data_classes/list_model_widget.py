@@ -3,10 +3,11 @@ from PySide6.QtCore import Signal
 import os
 
 from data_classes.model_info import ModelInfo
+from helpers import file_helpers
 
 
 class ListModelWidget(QWidget):
-    """List Widget to Select an ModelInfo Object"""
+    """List Widget to Select an Model. It utilises ModelInfo to load information about each model."""
 
     config_selected = Signal(str, ModelInfo)
 
@@ -31,14 +32,17 @@ class ListModelWidget(QWidget):
         models_dir = os.path.abspath("trained_models")
         if not os.path.exists(models_dir):
             print("ERROR: TRAINED_MODELS_FOLDER_DOES_NOT_EXIST")
+            return
 
         for folder in os.listdir(models_dir):
             if os.path.isdir(os.path.join(models_dir, folder)):
-                folder_path = os.path.join(models_dir, folder, "info.json")
+                folder_path = os.path.join(models_dir, folder)
+                info_path = os.path.join(folder_path, "info.json")
                 try:
-                    self.configs[folder] = ModelInfo.fromPath(folder_path)
+                    self.configs[folder] = ModelInfo.fromPath(info_path)
                 except FileNotFoundError:
-                    print(f"{folder} NOT VAILD")
+                    print(f"{folder} model is not valid, removing")
+                    file_helpers.delete_folder(folder_path)
 
     def populate_list(self):
         """Populates the list with config names."""
@@ -48,6 +52,7 @@ class ListModelWidget(QWidget):
             self.list_widget.insertItem(0, display_name)
 
     def update_list(self):
+        """Reloads call configs"""
         self.load_configs()
         self.populate_list()
 

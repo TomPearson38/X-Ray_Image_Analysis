@@ -3,6 +3,7 @@ from data_classes.bounding_box_item import BoundingBoxItem
 
 
 class ScrollableViewResults(ScrollableQGraphicsView):
+    """A child class of ScrollableQGraphicsView. Adds confidence score to image annotations."""
     def __init__(self, image_path, ai_result, annotation_list):
         self.ai_result = ai_result
         super().__init__(image_path, "", annotation_list)

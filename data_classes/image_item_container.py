@@ -5,6 +5,8 @@ import os
 
 
 class ImageItemContainer(QWidget):
+    """Displays the image and its file name in a Widget.
+    This is designed to be used in a grid to allow the user to click on an image to open a more detailed view."""
     def __init__(self, image_dir, img_file, open_detail_view):
         super().__init__()
 
@@ -39,4 +41,5 @@ class ImageItemContainer(QWidget):
                                                                                                          file_name)
 
     def get_label_text(self) -> str:
+        """Returns the label text, which is the file name."""
         return self.name_label.text()

@@ -8,8 +8,8 @@ class ImageViewer(QWidget):
     save_finished_signal = Signal()
     delete_image_signal = Signal(str, str, str)
 
-    """ Custom QGraphicsView to handle bounding box drawing """
     def __init__(self, image_path, annotation_path, file_name):
+        """ Custom QGraphicsView to handle bounding box drawing """
         super().__init__()
         self.image_path = image_path
         self.annotation_path = annotation_path
@@ -18,7 +18,6 @@ class ImageViewer(QWidget):
         self.layout = QGridLayout()
         self.setLayout(self.layout)
 
-        ####
         # Name Label
         self.name_label = QLabel(file_name)
 
@@ -47,7 +46,6 @@ class ImageViewer(QWidget):
         self.image_view.annotation_added.connect(self.finish_annotation)
         delete_button.clicked.connect(self.delete_image)
 
-        ####
         # Layout setup
         self.layout.addWidget(self.name_label, 0, 0, 1, 2)
         self.layout.addWidget(self.image_view, 1, 0)
@@ -63,16 +61,19 @@ class ImageViewer(QWidget):
         self.cancel_add_annotations_button.setHidden(True)
 
     def add_annotation(self):
+        """ Sets the image view state to add annotation. """
         self.cancel_add_annotations_button.setVisible(True)
         self.add_annotations_button.setVisible(False)
         self.image_view.add_annotation()
 
     def finish_annotation(self):
+        """ Resets the image view state to stop the drawing. """
         self.cancel_add_annotations_button.setVisible(False)
         self.add_annotations_button.setVisible(True)
         self.image_view.cancel_add_annotation()
 
     def save_changes(self):
+        """ Saves the changes to the image annotations it its annotation file. """
         new_txt = self.image_view.save_annotations()
         with open(self.annotation_path, 'w') as file:
             file.write(new_txt)
@@ -80,6 +81,7 @@ class ImageViewer(QWidget):
         self.save_finished_signal.emit()
 
     def delete_image(self):
+        """ Confirms you want to delete the image, and emits the delete signal. """
         reply = QMessageBox.question(self,
                                      "Confirmation",
                                      "Are you sure you want to delete this image. "

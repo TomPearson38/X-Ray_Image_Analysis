@@ -5,11 +5,12 @@ from PySide6.QtCore import Signal, Qt
 from helpers import file_helpers
 
 
-class CreateDataset(QWidget):
+class CreateDatasetConfig(QWidget):
     dataset_created_signal = Signal(str)
     cancel_creation_signal = Signal()
 
     def __init__(self, path_to_dataset_folder):
+        """ Allows the user to create a dataset name, that will be used to add images to for training. """
         super().__init__()
         self.main_layout = QGridLayout()
         self.path_to_dataset_folder = path_to_dataset_folder
@@ -33,10 +34,10 @@ class CreateDataset(QWidget):
 
         # Buttons Layout
         self.stacked_buttons_layout = QGridLayout()
-        self.stacked_buttons_layout.addWidget(self.create_dataset_button, 0, 0)
-        self.stacked_buttons_layout.addWidget(self.cancel_create_dataset_button, 0, 1)
         self.stacked_buttons_layout_wrapper_widget = QWidget()
         self.stacked_buttons_layout_wrapper_widget.setLayout(self.stacked_buttons_layout)
+        self.stacked_buttons_layout.addWidget(self.create_dataset_button, 0, 0)
+        self.stacked_buttons_layout.addWidget(self.cancel_create_dataset_button, 0, 1)
 
         self.main_layout.addWidget(self.page_label, 0, 0, 1, 2, Qt.AlignmentFlag.AlignHCenter)
         self.main_layout.addWidget(self.name_label, 1, 0)
@@ -48,6 +49,8 @@ class CreateDataset(QWidget):
         self.setLayout(self.main_layout)
 
     def create_dataset(self):
+        """ Creates a dataset based on the entered parameters. """
+        # Checks valid input name
         new_name = self.name_text_input.text()
         if new_name == "":
             QMessageBox.information(self,
@@ -56,6 +59,7 @@ class CreateDataset(QWidget):
                                     "Please enter a new name")
             return
 
+        # Creates empty text file
         new_file_name = new_name + ".txt"
         new_file_path = os.path.join(self.path_to_dataset_folder, new_file_name)
         is_created = file_helpers.create_file_empty_txt(new_file_path)
@@ -69,4 +73,5 @@ class CreateDataset(QWidget):
             self.dataset_created_signal.emit(new_name)
 
     def cancel_create_dataset(self):
+        """ Cancels creating a new dataset. """
         self.cancel_creation_signal.emit()

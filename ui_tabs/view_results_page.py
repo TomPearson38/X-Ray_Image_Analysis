@@ -11,10 +11,13 @@ class ViewResultsPage(QWidget):
     new_image_signal = Signal(str, str, str)
 
     def __init__(self, image_path, ai_result):
+        """ Displays the results of the analysed image.
+            Providing information on if a fault has been detected or not. """
         super().__init__()
 
         self.image_path = image_path
         self.ai_result = ai_result
+
         layout = QGridLayout()
 
         result_label = QLabel("")
@@ -56,9 +59,11 @@ class ViewResultsPage(QWidget):
         self.setLayout(layout)
 
     def close_view(self):
+        """ Switches the view back to the previous view. """
         self.switch_view.emit()
 
     def create_new_image(self):
+        """ Creates a new image using the values provided from the results of the analysed image. """
         new_img_folder = os.path.join("stored_training_images", "images", "raw")
         new_txt_folder = os.path.join("stored_training_images", "labels", "raw")
         safe_image_path, safe_image_file_name = file_helpers.create_valid_data_file_name(self.image_path,

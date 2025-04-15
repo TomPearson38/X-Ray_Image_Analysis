@@ -78,8 +78,8 @@ if __name__ == "__main__":
 
     # Logo Setting
     app.setWindowIcon(QIcon("Logo.ico"))
-    myappid = 'amrc.x-ray-image-analysis'
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    my_app_id = 'amrc.x-ray-image-analysis'
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(my_app_id)
 
     window = MainWindow()
     window.showNormal()

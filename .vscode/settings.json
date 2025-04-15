@@ -4,6 +4,7 @@
         "--ignore=E402"
     ],
     "cSpell.words": [
+        "analysed",
         "Pixmap",
         "yolov"
     ]

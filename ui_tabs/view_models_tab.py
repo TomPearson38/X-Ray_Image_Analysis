@@ -6,13 +6,14 @@ from data_classes.list_model_widget import ListModelWidget
 
 class ViewModelsTab(QWidget):
     def __init__(self):
+        """ Displays the trained models and their information in a tab. """
         super().__init__()
+
         self.layout = QGridLayout()
         self.config_list_widget = ListModelWidget()  # Use modular widget
         self.config_list_widget.setFixedWidth(300)
 
         self.layout.addWidget(self.config_list_widget, 0, 0, Qt.AlignmentFlag.AlignLeft)
-
         self.config_list_widget.config_selected.connect(self.display_model_details)
 
         details_layout = QGridLayout()
@@ -75,6 +76,7 @@ class ViewModelsTab(QWidget):
         self.setLayout(self.layout)
 
     def setup_details_grid(self, grid: QGridLayout, label_text: str, label_to_be_added: QLabel, row: int):
+        """ Adds the provided elements and a new label to the provided grid layout at the desired row. """
         grid.addWidget(QLabel(label_text), row, 0)
         grid.addWidget(label_to_be_added, row, 1)
 
@@ -99,4 +101,5 @@ class ViewModelsTab(QWidget):
         self.results_image.setPixmap(pixmap)
 
     def update_models(self):
+        """ Refreshes the models in the config list widget. """
         self.config_list_widget.update_list()
