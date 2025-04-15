@@ -241,11 +241,11 @@ class TrainAiTab(QWidget):
     def create_select_model(self):
         """ Creates the select model layout. """
         self.select_ai_widget = SelectAiPage()
-        self.select_ai_widget.model_selected.connect(self.model_selected)
+        self.select_ai_widget.model_selected_signal.connect(self.update_model_selected)
         self.select_ai_widget.switch_view.connect(self.switch_views)
         return self.select_ai_widget
 
-    def model_selected(self, name, path):
+    def update_model_selected(self, name, path):
         """ Triggered when a model is selected. The selected model value is updated. """
         self.selected_starting_model = path
         self.selected_model_label.setText(name)
