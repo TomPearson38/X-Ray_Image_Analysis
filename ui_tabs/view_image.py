@@ -1,12 +1,14 @@
+import os
 from PySide6.QtWidgets import (QWidget, QGridLayout,
                                QPushButton, QListWidget, QLabel, QMessageBox)
 from PySide6.QtCore import Signal
 from data_classes.ScrollableQGraphicsView import ScrollableQGraphicsView
+from helpers import file_helpers
 
 
 class ImageViewer(QWidget):
     save_finished_signal = Signal()
-    delete_image_signal = Signal(str, str, str)
+    delete_image_signal = Signal(str, str, str, str)
 
     def __init__(self, image_path, annotation_path, file_name):
         """ Custom QGraphicsView to handle bounding box drawing """
@@ -14,6 +16,7 @@ class ImageViewer(QWidget):
         self.image_path = image_path
         self.annotation_path = annotation_path
         self.file_name = file_name
+        self.annotation_colour_path = file_helpers.get_annotation_colour_config(annotation_path)
 
         self.layout = QGridLayout()
         self.setLayout(self.layout)
@@ -25,7 +28,8 @@ class ImageViewer(QWidget):
         self.annotation_list = QListWidget()
 
         # Load Image and Annotations
-        self.image_view = ScrollableQGraphicsView(self.image_path, self.annotation_path, self.annotation_list)
+        self.image_view = ScrollableQGraphicsView(self.image_path, self.annotation_path, self.annotation_list,
+                                                  self.annotation_colour_path)
         self.annotation_list.itemClicked.connect(self.image_view.on_annotation_selected)
 
         # Buttons
@@ -78,7 +82,30 @@ class ImageViewer(QWidget):
         with open(self.annotation_path, 'w') as file:
             file.write(new_txt)
 
+        if self.annotation_colour_path != "":
+            self.sync_colour_file_from_string(new_txt)
         self.save_finished_signal.emit()
+
+    def sync_colour_file_from_string(self, annotation_string):
+        """Syncs the _colour.txt file with the latest annotations string.
+        Removes lines that no longer exist and deletes file if it becomes empty."""
+        if not self.annotation_colour_path or not os.path.exists(self.annotation_colour_path):
+            return
+
+        # Clean and split annotation string
+        main_lines = set(line.strip() for line in annotation_string.strip().split("\n") if line.strip())
+
+        with open(self.annotation_colour_path, "r") as f:
+            colour_lines = set(line.strip() for line in f if line.strip())
+
+        # Keep lines still present in the main annotations
+        updated_colour_lines = [line for line in colour_lines if line in main_lines]
+
+        if updated_colour_lines:
+            with open(self.annotation_colour_path, "w") as f:
+                f.write("\n".join(updated_colour_lines) + "\n")
+        else:
+            os.remove(self.annotation_colour_path)
 
     def delete_image(self):
         """ Confirms you want to delete the image, and emits the delete signal. """
@@ -91,4 +118,5 @@ class ImageViewer(QWidget):
                                      QMessageBox.No)
 
         if reply == QMessageBox.Yes:
-            self.delete_image_signal.emit(self.image_path, self.annotation_path, self.file_name)
+            self.delete_image_signal.emit(self.image_path, self.annotation_path, self.file_name,
+                                          self.annotation_colour_path)
