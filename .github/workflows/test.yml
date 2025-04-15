@@ -23,7 +23,6 @@ jobs:
         run: |
             python -m pip install --upgrade pip
             pip install -r requirements.txt
-            pip install pytest pytest-qt PySide6 ultralytics flake8 
 
       - name: Run flake8 for style checks
         run: |
@@ -34,4 +33,4 @@ jobs:
           python -c "from ultralytics import YOLO; model = YOLO('yolov8n.pt'); print(model)"
 
       - name: Run PySide Tests
-        run: pytest tests/
+        run: pytest tests/ -ra -W default

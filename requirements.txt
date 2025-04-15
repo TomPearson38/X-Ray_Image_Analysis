@@ -11,3 +11,5 @@ PyYAML==6.0.2
 PyYAML==6.0.2
 torch==2.5.1+cu124
 ultralytics==8.3.58
+flake8==7.1.2
+pytest-qt==4.4.0
