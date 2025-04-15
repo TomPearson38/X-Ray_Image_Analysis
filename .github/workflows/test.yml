@@ -33,4 +33,4 @@ jobs:
           python -c "from ultralytics import YOLO; model = YOLO('yolov8n.pt'); print(model)"
 
       - name: Run PySide Tests
-        run: pytest tests/ -p no:warnings
+        run: pytest tests/ --maxfail=1 --timeout=60 --exitfirst -p no:warnings
