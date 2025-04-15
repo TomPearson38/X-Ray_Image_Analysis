@@ -49,12 +49,12 @@ class AnalyseImageTab(QWidget):
     def update_selected_model(self):
         """ Changes the view to the SelectAIPage, where the user is able to chose an AI to analyse the image. """
         self.select_ai_widget = SelectAiPage()
-        self.select_ai_widget.model_selected_signal.connect(self.model_selected)
+        self.select_ai_widget.model_selected_signal.connect(self.update_model_selected)
         self.select_ai_widget.switch_view.connect(self.reset_view)
         self.stacked_layout.addWidget(self.select_ai_widget)
         self.stacked_layout.setCurrentWidget(self.select_ai_widget)
 
-    def model_selected(self, name, path):
+    def update_model_selected(self, name, path):
         """ Updates the selected model path and resets the view. """
         self.selectedAIModelPath = path
         self.selectedModelLabel.setText(name)

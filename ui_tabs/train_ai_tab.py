@@ -66,10 +66,10 @@ class TrainAiTab(QWidget):
         self.selected_model_label = QLabel("None")
 
         # Comboboxes
-        self.model_selected = QComboBox()
+        self.model_selected_combobox = QComboBox()
         # Currently, only one model has been provided, but there is the ability to add more in the future.
-        self.model_selected.addItems(["YOLOv5"])
-        self.model_selected.setCurrentIndex(0)
+        self.model_selected_combobox.addItems(["YOLOv5"])
+        self.model_selected_combobox.setCurrentIndex(0)
 
         self.config_selector_combobox = QComboBox()
         self.load_dataset_configs()
@@ -121,7 +121,7 @@ class TrainAiTab(QWidget):
         new_ai_model_layout.addWidget(self.image_count_label, 2, 1)
 
         new_ai_model_layout.addWidget(QLabel("Model Architecture Selected:"), 3, 0)
-        new_ai_model_layout.addWidget(self.model_selected, 3, 1)
+        new_ai_model_layout.addWidget(self.model_selected_combobox, 3, 1)
 
         new_ai_model_layout.addWidget(QLabel("Continue Training From:"), 4, 0)
         new_ai_model_layout.addWidget(selected_model_layout_wrapper_widget, 4, 1)
@@ -312,7 +312,7 @@ class TrainAiTab(QWidget):
 
         # Create a new model info based on information provided.
         self.model_info = ModelInfo(self.ai_name_input.text(),
-                                    self.model_selected.currentText(),
+                                    self.model_selected_combobox.currentText(),
                                     "",
                                     self.image_count,
                                     epoch=self.epoch_num_input.text(),
