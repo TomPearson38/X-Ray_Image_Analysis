@@ -93,7 +93,7 @@ def add_new_img(file_path, new_img):
 
 
 def create_file_empty_txt(file_path):
-    """Creates a new empty text file."""
+    """Creates a new empty text file. Returns a bool, if the name is unique. If not, the file will not be created."""
     if os.path.exists(file_path):
         return False
 

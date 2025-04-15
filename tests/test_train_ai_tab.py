@@ -16,8 +16,8 @@ def test_pipeline_creation(app: MainWindow, qtbot):
     """Tests the pipeline creation when training an AI"""
     os.makedirs("data/dataset_yaml/", exist_ok=True)
     app.tabs.setCurrentIndex(2)
-    app.train_ai_tab.AINameInput.setText("Example Name")
+    app.train_ai_tab.ai_name_input.setText("Example Name")
     app.train_ai_tab.start_ai_train()
     qtbot.wait(500)
-    assert app.train_ai_tab.trainInProgress is True
+    assert app.train_ai_tab.train_in_progress is True
     app.train_ai_tab.pipeline.stop()

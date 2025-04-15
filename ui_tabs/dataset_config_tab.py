@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (QWidget, QGridLayout,
 import os
 from data_classes.image_item_container import ImageItemContainer
 from helpers import file_helpers
-from ui_tabs.create_dataset import CreateDataset
+from ui_tabs.create_dataset import CreateDatasetConfig
 from ui_tabs.edit_config import EditConfig
 from ui_tabs.view_dataset import ViewDataset
 from ui_tabs.view_image import ImageViewer
@@ -12,17 +12,23 @@ from ui_tabs.view_image import ImageViewer
 
 class DatasetConfigTab(QWidget):
     def __init__(self):
+        """Displays stored images, and their related annotations.
+           Provides dataset creation and editing tools.
+           Allows image deletion and addition."""
         super().__init__()
         self.main_stacked_layout = QStackedLayout()
         self.view_config_stacked_layout = QStackedLayout()
 
+        # Paths
         data_dir = os.path.abspath("stored_training_images")
         self.dataset_config_dir = os.path.join(data_dir, "datasets")
         self.image_dir = os.path.join(data_dir, "images", "raw")
         self.annotation_dir = os.path.join(data_dir, "labels", "raw")
+
+        # Init values
         self.image_files = []
-        self.column_count = 3
-        self.previous_page_stack = []
+        self.column_count = 3  # Used when changing the size of the display.
+        self.previous_page_stack = []  # Previous page's indexes are stored in this stack for easy retrieval
 
         # Buttons
         self.create_new_config_button = QPushButton("Create New Config")
@@ -57,12 +63,13 @@ class DatasetConfigTab(QWidget):
 
         self.load_images()
 
-        self.load_config(0)
+        self.load_config(0)  # Loads default view.
 
         self.view_config_stacked_layout.setCurrentIndex(0)
         self.main_stacked_layout.setCurrentIndex(0)
 
     def set_column_count(self, count):
+        """ Updates the grid view to the current width of the window. """
         if count != self.column_count:
             self.column_count = max(1, count)
             if hasattr(self, "edit_config_page") and self.edit_config_page != "":
@@ -72,7 +79,7 @@ class DatasetConfigTab(QWidget):
                 self.current_config.set_column_count(count)
 
     def update_dataset_configs(self, dataset_dir):
-        """Retrieve list of .txt files in the directory"""
+        """ Retrieve list of .txt files in the directory """
         if self.dataset_config_combobox.count() != 0:
             self.dataset_config_combobox.clear()
 
@@ -93,14 +100,15 @@ class DatasetConfigTab(QWidget):
             self.append_images(img_file)
 
     def append_images(self, img_file):
+        """ Creates a new image container and adds it to the view. """
         item_container = ImageItemContainer(self.image_dir, img_file, self.open_detail_view)
-
         self.list_of_item_containers.append(item_container)
 
     def open_detail_view(self, img_path, file_name):
-        """ Open selected image in a detailed view """
+        """ Open selected image in a detailed view. """
         annotation_path = os.path.join(self.annotation_dir, os.path.splitext(os.path.basename(img_path))[0] + ".txt")
 
+        # Creates a layout to contain the detailed view, that facilitates returning to current view.
         self.view_image_layout = QGridLayout()
         backButton = QPushButton("Return To View Images")
         backButton.pressed.connect(self.reset_layout)
@@ -118,6 +126,7 @@ class DatasetConfigTab(QWidget):
         self.main_stacked_layout.setCurrentWidget(self.view_image_layout_wrapper)
 
     def reset_layout(self):
+        """ Resets the stacked layout to the previous page, while cleaning up previous pages. """
         if self.main_stacked_layout.count() > 1:
             if hasattr(self, "img_viewer_widget"):
                 if self.img_viewer_widget.image_view.is_unsaved_changes():
@@ -137,6 +146,8 @@ class DatasetConfigTab(QWidget):
                     self.edit_config_page = ""
                     self.current_config.refresh()
 
+            #  Previous pages are stored as a stack, so when an a page is visited on top of a page,
+            #  the previous pages can be kept track.
             try:
                 previous_page = self.previous_page_stack.pop()
             except IndexError:
@@ -152,6 +163,7 @@ class DatasetConfigTab(QWidget):
             )
 
     def delete_image(self, image_path, annotation_path, img_name):
+        """ Deletes the provided image and annotation path """
         for img in self.list_of_item_containers:
             if self.compare_name_to_search(img, img_name):
                 self.reset_layout()
@@ -162,15 +174,17 @@ class DatasetConfigTab(QWidget):
                 break
 
         if self.current_config:
+            # Removes the deleted image from the list of images
             self.current_config.update_images(self.list_of_item_containers)
 
     def compare_name_to_search(self, img, search_string):
-        """Check if the last item is a QLabel and contains the provided string."""
+        """ Compares the provided search string, with the provided image's label. """
         img_label = img.get_label_text()
         return search_string.lower() in img_label.lower()  # Check contains the search string
 
     def create_config(self):
-        self.create_config_page = CreateDataset(self.dataset_config_dir)
+        """ Creates the view to create the config dataset. """
+        self.create_config_page = CreateDatasetConfig(self.dataset_config_dir)
         self.create_config_page.dataset_created_signal.connect(self.config_created)
         self.create_config_page.cancel_creation_signal.connect(self.reset_layout)
         self.main_stacked_layout.addWidget(self.create_config_page)
@@ -178,22 +192,27 @@ class DatasetConfigTab(QWidget):
         self.main_stacked_layout.setCurrentWidget(self.create_config_page)
 
     def config_created(self, new_file_name):
+        """ Called when a config has been created. Allows user to add items to new config. """
         self.update_dataset_configs(self.dataset_config_dir)
         index_of_new_config = self.combobox_items.index(new_file_name)
         self.dataset_config_combobox.setCurrentIndex(index_of_new_config)
         self.load_config(index_of_new_config)
 
     def load_config(self, index):
+        """ Changes the view to focus the displayed items to the items contained in the selected config. """
         if index >= 0:  # Ensure a valid selection
+            # Reset from previous selected config
             if hasattr(self, "current_config"):
                 self.view_config_stacked_layout.setCurrentIndex(0)
                 self.view_config_stacked_layout.removeWidget(self.current_config)
                 self.current_config = None
 
+            # Display all items
             if index == 0:
                 self.edit_config_button.setHidden(True)
                 self.delete_config_button.setHidden(True)
                 self.current_config = ViewDataset(self.list_of_item_containers, annotation_dir=self.annotation_dir)
+            # Display items from selected config
             else:
                 self.edit_config_button.setHidden(False)
                 self.delete_config_button.setHidden(False)
@@ -209,6 +228,8 @@ class DatasetConfigTab(QWidget):
             self.current_config.add_image_signal.connect(self.add_image)
 
     def add_image(self, path_to_config="", safe_image_path="", txt_destination_path="", safe_image_file_name=""):
+        """ Adds an image to the database. Images can be provided or selected.
+            A config can be provided to add the new image to by default."""
         if safe_image_path == "":
             # Image prompt, user selects valid image
             result = file_helpers.browse_file(self, "", "Images (*.png *.jpg)")
@@ -240,6 +261,7 @@ class DatasetConfigTab(QWidget):
         self.open_detail_view(safe_image_path, safe_image_file_name)
 
     def edit_config(self):
+        """ Changes the view to display the config information and change images contained in it. """
         self.edit_config_button.setDisabled(True)
         config_name = self.combobox_items[self.dataset_config_combobox.currentIndex()]
         config_path = os.path.join(self.dataset_config_dir, config_name + ".txt")
@@ -254,6 +276,7 @@ class DatasetConfigTab(QWidget):
         self.main_stacked_layout.setCurrentWidget(self.edit_config_page)
 
     def delete_config(self):
+        """ Deletes the currently selected config. """
         combo_box_current_index = self.dataset_config_combobox.currentIndex()
         if combo_box_current_index != 0:
             reply = QMessageBox.question(self,
