@@ -1,14 +1,7 @@
 from PySide6.QtWidgets import (QWidget, QGridLayout,
-                               QStackedLayout, QPushButton,
-                               QMessageBox, QComboBox, QListWidget, QTextBrowser, QHBoxLayout, QLabel)
+                               QListWidget, QTextBrowser, QLabel)
 import os
 import markdown
-from data_classes.image_item_container import ImageItemContainer
-from helpers import file_helpers
-from ui_tabs.create_dataset import CreateDatasetConfig
-from ui_tabs.edit_config import EditConfig
-from ui_tabs.view_dataset import ViewDataset
-from ui_tabs.view_image import ImageViewer
 
 
 class DocumentationViewerTab(QWidget):
