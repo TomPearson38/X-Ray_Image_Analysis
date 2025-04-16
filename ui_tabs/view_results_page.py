@@ -81,4 +81,15 @@ class ViewResultsPage(QWidget):
         with open(txt_destination_path, 'w') as file:
             file.write(new_txt)
 
+        # To differentiate AI annotations and manual annotations, the colour annotation file is created.
+        # It contains duplicates of the contents of the annotations file, but can only be deleted from,
+        # not appended to separate the manual changes from the original changes.
+        colour_name = (os.path.splitext(safe_image_file_name)[0]) + "_colour.txt"
+        annotation_colour_path = os.path.join(new_txt_folder, colour_name)
+
+        file_helpers.create_file_empty_txt(annotation_colour_path)
+        new_txt = self.image_view.save_annotations()
+        with open(annotation_colour_path, 'w') as file:
+            file.write(new_txt)
+
         self.new_image_signal.emit(safe_image_path, txt_destination_path, safe_image_file_name)

@@ -210,6 +210,7 @@ def remove_filename_from_configs(target_filename, config_dir):
 
 
 def delete_folder(provided_path):
+    """ Deletes the provided folder and its contents. """
     if os.path.exists(provided_path):
         if os.path.isdir(provided_path):
             shutil.rmtree(provided_path)
@@ -218,3 +219,17 @@ def delete_folder(provided_path):
             print(f"Path is not a folder: {provided_path}")
     else:
         print(f"Folder does not exist: {provided_path}")
+
+
+def get_annotation_colour_config(provided_path):
+    """ If a config file has a related AI colour file, it is returned, else an empty string is returned. """
+    dir_name, file_name = os.path.split(provided_path)
+    base, ext = os.path.splitext(file_name)
+
+    colour_file_name = f"{base}_colour{ext}"
+    colour_file_path = os.path.join(dir_name, colour_file_name)
+
+    if os.path.isfile(colour_file_path):
+        return colour_file_path
+    else:
+        return ""

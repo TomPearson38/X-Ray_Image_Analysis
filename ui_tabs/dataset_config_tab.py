@@ -162,7 +162,7 @@ class DatasetConfigTab(QWidget):
                 ).widget()
             )
 
-    def delete_image(self, image_path, annotation_path, img_name):
+    def delete_image(self, image_path, annotation_path, img_name, colour_path=""):
         """ Deletes the provided image and annotation path """
         for img in self.list_of_item_containers:
             if self.compare_name_to_search(img, img_name):
@@ -170,6 +170,8 @@ class DatasetConfigTab(QWidget):
                 self.list_of_item_containers.remove(img)
                 file_helpers.delete_file(image_path)
                 file_helpers.delete_file(annotation_path)
+                if colour_path != "":
+                    file_helpers.delete_file(colour_path)
                 file_helpers.remove_filename_from_configs(img_name, self.dataset_config_dir)
                 break
 

@@ -12,13 +12,14 @@ class ScrollableQGraphicsView(QGraphicsView):
     Facilitates functionalities such as zoom, adding annotations, saving annotations and deletion."""
     annotation_added = Signal()
 
-    def __init__(self, image_path, annotation_path, annotation_list):
+    def __init__(self, image_path, annotation_path, annotation_list, annotation_colour_path=""):
         super().__init__()
 
         self.scale_factor = 1.0  # To track the zoom scale
         self.image_path = image_path
         self.annotation_path = annotation_path
         self.annotation_list = annotation_list
+        self.annotation_colour_path = annotation_colour_path
 
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
@@ -47,12 +48,22 @@ class ScrollableQGraphicsView(QGraphicsView):
     def load_annotations(self):
         """ Load YOLO bounding boxes and convert to pixel coordinates """
         if os.path.exists(self.annotation_path):
+            # Check to see if any annotations have been added by the image analysis AI
+            colour_lines = set()
+            if self.annotation_colour_path:
+                with open(self.annotation_colour_path, "r") as cf:
+                    colour_lines = set(line.strip() for line in cf if line.strip())
+
             with open(self.annotation_path, "r") as f:
                 for line in f.readlines():
-                    class_id, x_center, y_center, box_w, box_h = map(float, line.strip().split())
+                    stripped_line = line.strip()
+                    class_id, x_center, y_center, box_w, box_h = map(float, stripped_line.split())
+
+                    # If the line is in the AI colour lines, it must be created by an AI
+                    is_ai_colour = stripped_line in colour_lines
 
                     box = BoundingBoxItem(class_id, x_center, y_center, box_w, box_h, self.img_w, self.img_h,
-                                          self.annotation_list)
+                                          self.annotation_list, ai_colour=is_ai_colour)
 
                     self.scene.addItem(box)  # Adds bounding box to image scene
                     self.bounding_boxes.append(box)
@@ -77,7 +88,7 @@ class ScrollableQGraphicsView(QGraphicsView):
                 box.setPen(QPen(Qt.green, 3))
                 box.setSelected(True)
             else:
-                box.setPen(QPen(Qt.red, 2))
+                box.setPen(QPen(box.colour, 2))
                 box.setSelected(False)
 
     def add_annotation(self):
