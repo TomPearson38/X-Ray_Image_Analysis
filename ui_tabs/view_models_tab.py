@@ -1,7 +1,9 @@
-from PySide6.QtWidgets import QWidget, QLabel, QGridLayout
+from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QMessageBox
 from PySide6.QtCore import Qt
 from data_classes.model_info import ModelInfo
 from data_classes.list_model_widget import ListModelWidget
+import os
+from helpers import file_helpers
 
 
 class ViewModelsTab(QWidget):
@@ -10,11 +12,12 @@ class ViewModelsTab(QWidget):
         super().__init__()
 
         self.layout = QGridLayout()
-        self.config_list_widget = ListModelWidget()  # Use modular widget
-        self.config_list_widget.setFixedWidth(300)
+        self.list_model_widget = ListModelWidget()  # Use modular widget
+        self.list_model_widget.setFixedWidth(300)
+        self.selected_model = ""
 
-        self.layout.addWidget(self.config_list_widget, 0, 0, Qt.AlignmentFlag.AlignLeft)
-        self.config_list_widget.config_selected.connect(self.display_model_details)
+        self.layout.addWidget(self.list_model_widget, 0, 0, Qt.AlignmentFlag.AlignLeft)
+        self.list_model_widget.item_selected.connect(self.display_model_details)
 
         details_layout = QGridLayout()
 
@@ -65,6 +68,10 @@ class ViewModelsTab(QWidget):
         details_layout.addWidget(QLabel("Results Image: "), 14, 0, 1, 2)
         details_layout.addWidget(self.results_image, 14, 0, 1, 2)
 
+        self.delete_model_button = QPushButton("Delete Selected Model")
+        self.delete_model_button.pressed.connect(self.delete_selected_model)
+        details_layout.addWidget(self.delete_model_button, 15, 0, 1, 2)
+
         details_layout_widget = QWidget()
         details_layout_widget.setLayout(details_layout)
 
@@ -80,7 +87,7 @@ class ViewModelsTab(QWidget):
         grid.addWidget(QLabel(label_text), row, 0)
         grid.addWidget(label_to_be_added, row, 1)
 
-    def display_model_details(self, config_name, model: ModelInfo):
+    def display_model_details(self, model_name, model: ModelInfo):
         """Displays the selected config's details."""
         self.name_label.setText(model.name)
         self.model_label.setText(model.model)
@@ -97,9 +104,48 @@ class ViewModelsTab(QWidget):
         self.dataset_config_label.setText(str(model.dataset_config))
         self.starting_model_label.setText(str(model.starting_model))
 
+        self.selected_model = model.folder_name
+
         pixmap = model.get_results_png().scaled(800, 400)
         self.results_image.setPixmap(pixmap)
 
+    def reset_layout(self):
+        self.name_label.setText("")
+        self.model_label.setText("")
+        self.date_time_trained_label.setText("")
+        self.number_of_images_label.setText("")
+        self.path_label.setText("")
+        self.epoch_label.setText("")
+        self.box_loss_label.setText("")
+        self.cls_loss_label.setText("")
+        self.mAP_50_label.setText("")
+        self.mAP_50_95_label.setText("")
+        self.precision_label.setText("")
+        self.recall_label.setText("")
+        self.dataset_config_label.setText("")
+        self.starting_model_label.setText("")
+        self.results_image.clear()
+
+        self.selected_model = ""
+
     def update_models(self):
         """ Refreshes the models in the config list widget. """
-        self.config_list_widget.update_list()
+        self.list_model_widget.update_list()
+
+    def delete_selected_model(self):
+        """ Deletes the currently selected model. """
+        if self.selected_model != "":
+            reply = QMessageBox.question(self,
+                                         "Confirmation",
+                                         "Are you sure you would like to delete this model? "
+                                         "This operation cannot be undone!",
+                                         QMessageBox.Yes | QMessageBox.No,
+                                         QMessageBox.No)
+            if reply == QMessageBox.No:
+                return
+
+            model_to_be_deleted = os.path.join(os.path.abspath("trained_models"), self.selected_model)
+            file_helpers.delete_folder(model_to_be_deleted)
+
+            self.reset_layout()
+            self.update_models()

@@ -21,7 +21,7 @@ class SelectAiPage(QWidget):
         self.config_list_widget = ListModelWidget()  # Use modular widget
         self.config_list_widget.setMinimumWidth(300)
         self.layout.addWidget(self.config_list_widget, 1, 0, Qt.AlignmentFlag.AlignCenter)
-        self.config_list_widget.config_selected.connect(self.model_clicked)
+        self.config_list_widget.item_selected.connect(self.model_clicked)
 
         self.submit_button = QPushButton("Select")
         self.layout.addWidget(self.submit_button, 2, 0, Qt.AlignmentFlag.AlignCenter)

@@ -9,6 +9,7 @@ from ultralytics import YOLO
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from data_classes.model_info import ModelInfo
+from helpers import file_helpers
 
 
 def train_yolo(data_yaml, model_info, training_start, model_dir,
@@ -78,6 +79,7 @@ def train_yolo(data_yaml, model_info, training_start, model_dir,
     model_info_object.cls_loss = results_df["train/cls_loss"]
     model_info_object.mAP_50 = results_df["metrics/mAP50(B)"]
     model_info_object.mAP_50_95 = results_df["metrics/mAP50-95(B)"]
+    model_info_object.folder_name = file_helpers.get_folder_name_from_path(model_dir)
 
     model_info_object.save_to_json()
 

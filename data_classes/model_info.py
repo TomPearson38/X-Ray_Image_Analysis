@@ -7,7 +7,7 @@ class ModelInfo:
     """Class to represent an AI Model configuration object."""
     def __init__(self, name, model, date_time_trained, number_of_images, path="", epoch="",
                  box_loss="", cls_loss="", mAP_50="", mAP_50_95="", precision="", recall="",
-                 dataset_config="", starting_model=""):
+                 dataset_config="", starting_model="", folder_name=""):
         self.name = name
         self.model = model
         self.date_time_trained = date_time_trained
@@ -22,6 +22,7 @@ class ModelInfo:
         self.recall = recall
         self.dataset_config = dataset_config
         self.starting_model = starting_model
+        self.folder_name = folder_name
 
     @classmethod
     def fromPath(cls, file_path):
@@ -57,6 +58,7 @@ class ModelInfo:
             "recall": self.recall,
             "dataset_config": self.dataset_config,
             "starting_model": self.starting_model,
+            "folder_name": self.folder_name,
         }
 
     def to_json(self):

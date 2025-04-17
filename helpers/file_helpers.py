@@ -243,3 +243,8 @@ def list_files_in_folder(folder_path):
         return '\n'.join(files)
     except Exception as e:
         return f"Error: {str(e)}"
+
+
+def get_folder_name_from_path(path):
+    """Returns the folder name from the provided path"""
+    return os.path.basename(os.path.normpath(path))
