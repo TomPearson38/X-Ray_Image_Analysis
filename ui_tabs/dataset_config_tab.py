@@ -186,7 +186,7 @@ class DatasetConfigTab(QWidget):
 
     def create_config(self):
         """ Creates the view to create the config dataset. """
-        self.create_config_page = CreateDatasetConfig(self.dataset_config_dir)
+        self.create_config_page = CreateDatasetConfig(self.dataset_config_dir, self.image_dir)
         self.create_config_page.dataset_created_signal.connect(self.config_created)
         self.create_config_page.cancel_creation_signal.connect(self.reset_layout)
         self.main_stacked_layout.addWidget(self.create_config_page)

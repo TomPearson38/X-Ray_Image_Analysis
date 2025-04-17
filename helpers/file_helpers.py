@@ -233,3 +233,13 @@ def get_annotation_colour_config(provided_path):
         return colour_file_path
     else:
         return ""
+
+
+def list_files_in_folder(folder_path):
+    """ Lists all the files in the provided folder and returns them as a string separating the
+        file names by new lines. """
+    try:
+        files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+        return '\n'.join(files)
+    except Exception as e:
+        return f"Error: {str(e)}"

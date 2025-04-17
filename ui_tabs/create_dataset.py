@@ -9,11 +9,12 @@ class CreateDatasetConfig(QWidget):
     dataset_created_signal = Signal(str)
     cancel_creation_signal = Signal()
 
-    def __init__(self, path_to_dataset_folder):
+    def __init__(self, path_to_dataset_folder, path_to_images_folder):
         """ Allows the user to create a dataset name, that will be used to add images to for training. """
         super().__init__()
         self.main_layout = QGridLayout()
         self.path_to_dataset_folder = path_to_dataset_folder
+        self.path_to_images_folder = path_to_images_folder
 
         # Labels
         self.page_label = QLabel("Create New Dataset Config")
@@ -52,7 +53,7 @@ class CreateDatasetConfig(QWidget):
         """ Creates a dataset based on the entered parameters. """
         # Checks valid input name
         new_name = self.name_text_input.text()
-        if new_name == "":
+        if new_name == "" or (" ") in new_name:
             QMessageBox.information(self,
                                     "Invalid Name",
                                     "The name you have entered is not valid. "
@@ -70,6 +71,10 @@ class CreateDatasetConfig(QWidget):
                                     "The name you have entered is already taken. "
                                     "Please enter a new name")
         else:
+            if self.import_all_images_checkbox.isChecked():
+                all_files_string = file_helpers.list_files_in_folder(self.path_to_images_folder)
+                file_helpers.update_config(new_file_path, all_files_string)
+
             self.dataset_created_signal.emit(new_name)
 
     def cancel_create_dataset(self):
