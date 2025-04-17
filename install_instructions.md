@@ -1,5 +1,7 @@
 # Install Instructions
 
+This system requires a Nvidia Graphics Card to function correctly. It can work without one, but will be **much** slower. It was developed with a GeForce RTX 3070, therefore any other graphics card that is equal or better performing will be perfect for this system.
+
 To ensure that the program works correctly, you must first follow these steps on how to install the program.
 
 **Video Tutorial**
@@ -9,6 +11,22 @@ This text guide assumes that the install process goes smoothly, if you would lik
 This program needs python version 3.12. (It was developed using python 3.12.8, but the newest version of python 3.12 should be sufficient). This can be downloaded from python at [Python Homepage](https://www.python.org/downloads/windows/). With the latest version at the time of writing being, [3.12.10](https://www.python.org/downloads/release/python-31210/).
 
 When installing ensure that you select the **Add Python.exe to Path** option at the bottom of the installer.
+
+## Updating your Graphics Card Drivers and Installing CUDA
+If you have an Nvidia graphics card ensure that the drivers are up to date.
+
+First, visit the [CUDA Installer](https://developer.nvidia.com/cuda-12-6-0-download-archive).
+You need to download the version for Windows, x86_64, then your windows version (either 10 or 11), exe (network).
+Once that has downloaded, launch it. You may need to restart once that has finished.
+Then navigate to (PyTorch)[https://pytorch.org/get-started/locally/].
+You need to install the Stable PyTorch Build, Windows, Pip, Python, CUDA 12.6.
+Copy the command that it gives you and paste it into a CMD window.
+
+To verify that it is installed type `python` in a CMD window.
+Then type:
+`import torch` (press enter)
+`torch.cuda.is_available()` (press enter)
+
 
 ## Git Installation
 This program was developed using Git. Git is an open source tool used for repository management and distribution. It will be how you "clone" the source code and how you access other programs you need. In order to do this, you will need to install [Git for Windows](https://git-scm.com/downloads/win), or any other git management tool.
