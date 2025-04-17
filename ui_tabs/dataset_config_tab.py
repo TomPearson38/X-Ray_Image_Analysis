@@ -199,6 +199,7 @@ class DatasetConfigTab(QWidget):
         index_of_new_config = self.combobox_items.index(new_file_name)
         self.dataset_config_combobox.setCurrentIndex(index_of_new_config)
         self.load_config(index_of_new_config)
+        self.reset_layout()
 
     def load_config(self, index):
         """ Changes the view to focus the displayed items to the items contained in the selected config. """
