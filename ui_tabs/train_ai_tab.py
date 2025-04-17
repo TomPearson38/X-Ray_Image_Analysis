@@ -268,7 +268,7 @@ class TrainAiTab(QWidget):
     def combobox_index_changed(self, index):
         """ Updates the selected config when the index changes. """
         if index == 0:
-            self.image_count = str(file_helpers.count_files_in_directory(self.image_dir))
+            self.image_count = str(file_helpers.count_image_files_in_directory(self.image_dir))
             self.image_count_label.setText(self.image_count)
         else:
             current_config = self.config_combobox_items[index]
@@ -299,6 +299,14 @@ class TrainAiTab(QWidget):
             error_message.setIcon(QMessageBox.Critical)
             error_message.setWindowTitle("Error")
             error_message.setText("One or more parameters is incorrect.\nPlease check your inputs.")
+            error_message.exec()
+            return
+
+        if (int(self.image_count_label.text()) <= 3):
+            error_message = QMessageBox()
+            error_message.setIcon(QMessageBox.Critical)
+            error_message.setWindowTitle("Error")
+            error_message.setText("Insufficient number of training images provided. Please add more images.")
             error_message.exec()
             return
 

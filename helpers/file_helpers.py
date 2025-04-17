@@ -123,13 +123,13 @@ def count_lines_in_file(file_path):
     return 0
 
 
-def count_files_in_directory(file_path):
-    """Counts the number of files in the provided directory"""
+def count_image_files_in_directory(file_path):
+    """Counts the number of image files in the provided directory"""
     if os.path.exists(file_path):
         try:
             return sum(
                 1 for file in os.listdir(file_path)
-                if os.path.isfile(os.path.join(file_path, file))
+                if os.path.isfile(os.path.join(file_path, file)) and file.lower().endswith(('.jpg', '.png'))
             )
         except FileNotFoundError:
             print(f"Directory not found: {file_path}")
