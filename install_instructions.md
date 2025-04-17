@@ -5,7 +5,7 @@ This system requires a Nvidia Graphics Card to function correctly. It can work w
 To ensure that the program works correctly, you must first follow these steps on how to install the program.
 
 **Video Tutorial**
-This text guide assumes that the install process goes smoothly, if you would like a commentated video demonstrating each step from scratch, watch this video instead. [Link to Video](https://youtu.be/3IbNj0MY_do)
+This text guide assumes that the install process goes smoothly, if you would like a commentated video demonstrating each step from scratch, watch this video instead. [Link to Video](https://youtu.be/WVHLTXX7thQ)
 
 ## Python Installation
 This program needs python version 3.12. (It was developed using python 3.12.8, but the newest version of python 3.12 should be sufficient). This can be downloaded from python at [Python Homepage](https://www.python.org/downloads/windows/). With the latest version at the time of writing being, [3.12.10](https://www.python.org/downloads/release/python-31210/).
@@ -13,8 +13,6 @@ This program needs python version 3.12. (It was developed using python 3.12.8, b
 When installing ensure that you select the **Add Python.exe to Path** option at the bottom of the installer.
 
 ## Updating your Graphics Card Drivers and Installing CUDA
-If you have an Nvidia graphics card ensure that the drivers are up to date.
-
 First, visit the [CUDA Installer](https://developer.nvidia.com/cuda-12-6-0-download-archive).
 You need to download the version for Windows, x86_64, then your windows version (either 10 or 11), exe (network).
 Once that has downloaded, launch it. You may need to restart once that has finished.
