@@ -34,9 +34,9 @@ class AnalyseImageTab(QWidget):
         start_analyse_image_layout.addWidget(selectAIModelButton, 1, 2)
         selectAIModelButton.clicked.connect(self.update_selected_model)
 
-        analyseImageButton = QPushButton("Analyse")
-        start_analyse_image_layout.addWidget(analyseImageButton, 2, 0, 1, 3)
-        analyseImageButton.clicked.connect(self.start_image_analysis)
+        self.analyseImageButton = QPushButton("Analyse")
+        start_analyse_image_layout.addWidget(self.analyseImageButton, 2, 0, 1, 3)
+        self.analyseImageButton.clicked.connect(self.start_image_analysis)
 
         self.stacked_layout = QStackedLayout()
         start_analyse_image_layout_wrapper_widget = QWidget()
@@ -72,12 +72,15 @@ class AnalyseImageTab(QWidget):
     def start_image_analysis(self):
         """ Analyses the selected image using the selected model. """
         # Checks for valid AI path
+        self.analyseImageButton.setDisabled(True)
+
         if (self.selectedAIModelPath == "" or Path(self.selectedAIModelPath).suffix != ".pt"):
             errorMessage = QMessageBox()
             errorMessage.setIcon(QMessageBox.Critical)
             errorMessage.setWindowTitle("Error")
             errorMessage.setText("Please select a valid AI model.")
             errorMessage.exec()
+            self.analyseImageButton.setDisabled(False)
             return
 
         # Checks for valid image path
@@ -87,6 +90,7 @@ class AnalyseImageTab(QWidget):
             errorMessage.setWindowTitle("Error")
             errorMessage.setText("Please select a valid image to analyse.")
             errorMessage.exec()
+            self.analyseImageButton.setDisabled(False)
             return
 
         # Setup worker and thread
@@ -96,6 +100,7 @@ class AnalyseImageTab(QWidget):
 
     def analysis_finished(self, results):
         """ Displays the view results page. """
+        self.analyseImageButton.setDisabled(False)
         self.results_widget = ViewResultsPage(self.selectedImage, results)
         self.results_widget.switch_view.connect(self.reset_view)
         self.results_widget.new_image_signal.connect(self.new_image)
