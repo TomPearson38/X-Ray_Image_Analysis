@@ -1,3 +1,6 @@
+# As the provided dataset has image annotations in a different format.
+# This file converts them to a format that YOLO understands.
+
 import os
 import numpy as np
 from PIL import Image
@@ -31,12 +34,12 @@ def convert_gt_to_yolo(gt_file, images_dir, output_dir, class_id=0):
         with Image.open(image_path) as img:
             img_width, img_height = img.size
 
-        # Find annotations for the current image
+        # Find ground truth annotations for the current image
         if image_id in gt_data[:, 0]:
             image_annotations = gt_data[gt_data[:, 0] == image_id][:, 1:]
             yolo_lines = []
 
-            # Convert annotations to YOLO format
+            # Convert ground truth annotations to YOLO format
             for bbox in image_annotations:
                 x_min, x_max, y_min, y_max = bbox
                 x_center = (x_min + x_max) / 2 / img_width
@@ -72,11 +75,10 @@ def convert_gt_to_yolo(gt_file, images_dir, output_dir, class_id=0):
         print(f"No ground truth entry found for {image_file}. Created an empty label file.")
 
 
-# Example usage
 if __name__ == "__main__":
-    ground_truth_file = "C:/Users/tomap/Downloads/Castings/Castings/C0002/ground_truth.txt"
-    images_directory = "C:/Users/tomap/Downloads/Castings/Castings/C0002/"
-    output_directory = "D:/Other computers/My PC/UniYear3/Dissertation/Code/X-Ray_Image_Analysis/data/labels"
+    ground_truth_file = "FULL_PATH_TO_GROUND_TRUTH_TXT_FOLDER/ground_truth.txt"
+    images_directory = "FULL_PATH_TO_IMAGES_DIR"
+    output_directory = "FULL_PATH_TO_OUTPUT_DIR"
 
     # Assuming all defects belong to class ID 0 for YOLO
     convert_gt_to_yolo(ground_truth_file, images_directory, output_directory, class_id=0)
