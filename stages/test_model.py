@@ -11,18 +11,16 @@ class TestModelStage(QThread):
     model_testing_text_signal = Signal(str)
     model_testing_progress_bar_signal = Signal(int)
 
-    def __init__(self, model_info: ModelInfo, path_to_images, path_to_labels, path_to_all_images):
+    def __init__(self, model_info: ModelInfo, path_to_images, path_to_labels, path_to_all_images, path_to_models):
         """Tests the model and creates statistics for comparison."""
         super().__init__()
         self.model_info = model_info
         self.path_to_images = path_to_images
         self.path_to_labels = path_to_labels
+        self.path_to_models = path_to_models
 
         self.path_to_train_images = os.path.join(path_to_images, "train")
         self.path_to_val_images = os.path.join(path_to_images, "val")
-
-        self.path_to_train_labels = os.path.join(path_to_labels, "train")
-        self.path_to_val_labels = os.path.join(path_to_labels, "val")
 
         self.train_image_count = file_helpers.count_image_files_in_directory(self.path_to_train_images)
         self.val_image_count = file_helpers.count_image_files_in_directory(self.path_to_val_images)
@@ -35,6 +33,10 @@ class TestModelStage(QThread):
         self.selected_test_images.extend(self.selected_training_images)
         self.selected_test_images.extend(self.selected_val_images)
         self.selected_test_images.extend(self.selected_all_images)
+
+        self.selected_test_annotation = []
+        for img in self.selected_test_images:
+            self.selected_test_annotation.append(file_helpers.get_annotation_for_image(img, self.path_to_labels))
 
     def run(self):
         self.metamorphic_tests()
@@ -81,7 +83,7 @@ class TestModelStage(QThread):
                 rotated_boxes.append([0, x_center, y_center, w, h])
 
             # Compare bounding boxes
-            matched, total = self.compare_annotations(rotated_original_boxes, rotated_boxes)
+            matched, total = self.compare_annotations(rotated_original_boxes, rotated_boxes, 0.3)
             total_match += matched
             total_number += total
 
@@ -98,7 +100,75 @@ class TestModelStage(QThread):
         self.model_testing_text_signal.emit(f"Metamorphic Test Finished, FINAL RESULT - {final_result} ")
 
     def differential_tests(self):
-        pass
+        """ Compares current model's performance to previous models. """
+        previous_model_path = self.model_info.starting_model
+        if previous_model_path == "":
+            previous_model_path = file_helpers.get_model_for_comparison(self.path_to_models)
+
+        # No previous models
+        if previous_model_path == "":
+            return
+
+        current_model = YOLO(self.model_info.get_best_pt_path())
+        previous_model = YOLO(previous_model_path)
+
+        total_correct_bounding_boxes = 0
+        current_model_performance = 0
+        previous_model_performance = 0
+
+        length_of_selected_images = len(self.selected_test_images)
+
+        # Compare performance for each model, to the correct bounding boxes for the image.
+        for index in range(0, length_of_selected_images):
+            current_image = self.selected_test_images[index]
+            current_annotation = self.selected_test_annotation[index]
+
+            # Loads correct bounding boxes
+            correct_bounding_boxes = []
+            with open(current_annotation, "r") as f:
+                for line in f.readlines():
+                    stripped_line = line.strip()
+                    class_id, x_center, y_center, box_w, box_h = map(float, stripped_line.split())
+                    correct_bounding_boxes.append([class_id, x_center, y_center, box_w, box_h])
+            total_correct_bounding_boxes += len(correct_bounding_boxes)
+
+            # Calculates new model's bounding boxes
+            current_model_results = current_model(current_image)
+            current_model_bounding_boxes = []
+            for box in current_model_results[0].boxes:
+                x_center, y_center, w, h = box.xywhn[0].tolist()
+                current_model_bounding_boxes.append([0, x_center, y_center, w, h])
+
+            # Calculates previous model's bounding boxes
+            previous_model_results = previous_model(current_image)
+            previous_model_bounding_boxes = []
+            for box in previous_model_results[0].boxes:
+                x_center, y_center, w, h = box.xywhn[0].tolist()
+                previous_model_bounding_boxes.append([0, x_center, y_center, w, h])
+
+            # Adds the matching bounding boxes between the true value and the model's predicted values
+            current_model_performance += self.compare_annotations(current_model_bounding_boxes,
+                                                                  correct_bounding_boxes, 0.5)[0]
+
+            previous_model_performance += self.compare_annotations(current_model_bounding_boxes,
+                                                                   correct_bounding_boxes, 0.5)[0]
+
+            # Emit a status update
+            self.model_testing_text_signal.emit("Differential Testing - Calculated "
+                                                f"{index}/{length_of_selected_images}")
+            self.model_testing_progress_bar_signal.emit(int(index / length_of_selected_images * 66))
+
+        percentage_current_correct = current_model_performance / total_correct_bounding_boxes
+        percentage_previous_correct = previous_model_performance / total_correct_bounding_boxes
+
+        # Difference can be positive (improved) or negative (degraded)
+        difference = (percentage_current_correct - percentage_previous_correct) * 100
+
+        self.model_info.differential_test_result = difference
+
+        self.model_testing_text_signal.emit("Differential Testing Finished, FINAL RESULT - Change in accuracy of "
+                                            f"{difference}% since previous model.")
+        self.model_testing_progress_bar_signal.emit(66)
 
     def fuzzing_tests(self):
         pass
@@ -164,14 +234,14 @@ class TestModelStage(QThread):
 
         return inter_area / union if union else 0
 
-    def compare_annotations(self, original_boxes, rotated_boxes):
+    def compare_annotations(self, boxes1, boxes2, intersection_over_union_percentage=0.5):
         """ Compares to see if any annotations match. """
         matched = 0
-        for original_box in original_boxes:
-            for rotated_box in rotated_boxes:
+        for original_box in boxes1:
+            for rotated_box in boxes2:
                 # If the IoU is over the threshold of 0.1
-                if self.intersection_over_union(original_box, rotated_box) >= 0.3:
+                if self.intersection_over_union(original_box, rotated_box) >= intersection_over_union_percentage:
                     matched += 1
                     break
 
-        return matched, len(original_boxes)
+        return matched, len(boxes1)

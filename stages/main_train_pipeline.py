@@ -41,6 +41,7 @@ class MainTrainPipeline(QThread):
         self.dataset_config_dir = os.path.join(stored_training_images_dir, "datasets")
         self.image_dir = os.path.join(stored_training_images_dir, "images", "raw")
         self.annotation_dir = os.path.join(stored_training_images_dir, "labels", "raw")
+        self.model_dir = os.path.abspath("trained_models")
         runs_dir = os.path.join("runs", "detect")
 
         if os.path.exists(runs_dir):
@@ -168,7 +169,8 @@ class MainTrainPipeline(QThread):
 
         model_info = ModelInfo.fromPath(model_info_path)
 
-        self.testing_thread = TestModelStage(model_info, self.train_data_dir, self.train_labels_dir, self.image_dir)
+        self.testing_thread = TestModelStage(model_info, self.train_data_dir, self.annotation_dir,
+                                             self.image_dir, self.model_dir)
         self.testing_thread.model_testing_text_signal.connect(self.model_testing_text)
         self.testing_thread.model_testing_progress_bar_signal.connect(self.model_testing_progress_bar)
         self.testing_thread.run()

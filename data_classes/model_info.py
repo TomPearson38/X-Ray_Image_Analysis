@@ -7,7 +7,8 @@ class ModelInfo:
     """Class to represent an AI Model configuration object."""
     def __init__(self, name, model, date_time_trained, number_of_images, path="", epoch="",
                  box_loss="", cls_loss="", mAP_50="", mAP_50_95="", precision="", recall="",
-                 dataset_config="", starting_model="", folder_name="", metamorphic_test_result=""):
+                 dataset_config="", starting_model="", folder_name="", metamorphic_test_result="",
+                 differential_test_result=""):
         self.name = name
         self.model = model
         self.date_time_trained = date_time_trained
@@ -24,6 +25,7 @@ class ModelInfo:
         self.starting_model = starting_model
         self.folder_name = folder_name
         self.metamorphic_test_result = metamorphic_test_result
+        self.differential_test_result = differential_test_result
 
     @classmethod
     def fromPath(cls, file_path):
@@ -61,6 +63,7 @@ class ModelInfo:
             "starting_model": self.starting_model,
             "folder_name": self.folder_name,
             "metamorphic_test_result": self.metamorphic_test_result,
+            "differential_test_result": self.differential_test_result
         }
 
     def to_json(self):
