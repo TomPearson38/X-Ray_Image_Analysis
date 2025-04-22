@@ -123,13 +123,13 @@ def count_lines_in_file(file_path):
     return 0
 
 
-def count_files_in_directory(file_path):
-    """Counts the number of files in the provided directory"""
+def count_image_files_in_directory(file_path):
+    """Counts the number of image files in the provided directory"""
     if os.path.exists(file_path):
         try:
             return sum(
                 1 for file in os.listdir(file_path)
-                if os.path.isfile(os.path.join(file_path, file))
+                if os.path.isfile(os.path.join(file_path, file)) and file.lower().endswith(('.jpg', '.png'))
             )
         except FileNotFoundError:
             print(f"Directory not found: {file_path}")
@@ -233,3 +233,18 @@ def get_annotation_colour_config(provided_path):
         return colour_file_path
     else:
         return ""
+
+
+def list_files_in_folder(folder_path):
+    """ Lists all the files in the provided folder and returns them as a string separating the
+        file names by new lines. """
+    try:
+        files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+        return '\n'.join(files)
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+
+def get_folder_name_from_path(path):
+    """Returns the folder name from the provided path"""
+    return os.path.basename(os.path.normpath(path))

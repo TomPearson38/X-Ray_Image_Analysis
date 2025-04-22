@@ -186,7 +186,7 @@ class DatasetConfigTab(QWidget):
 
     def create_config(self):
         """ Creates the view to create the config dataset. """
-        self.create_config_page = CreateDatasetConfig(self.dataset_config_dir)
+        self.create_config_page = CreateDatasetConfig(self.dataset_config_dir, self.image_dir)
         self.create_config_page.dataset_created_signal.connect(self.config_created)
         self.create_config_page.cancel_creation_signal.connect(self.reset_layout)
         self.main_stacked_layout.addWidget(self.create_config_page)
@@ -199,6 +199,7 @@ class DatasetConfigTab(QWidget):
         index_of_new_config = self.combobox_items.index(new_file_name)
         self.dataset_config_combobox.setCurrentIndex(index_of_new_config)
         self.load_config(index_of_new_config)
+        self.reset_layout()
 
     def load_config(self, index):
         """ Changes the view to focus the displayed items to the items contained in the selected config. """

@@ -12,6 +12,7 @@ class DocumentationViewerTab(QWidget):
 
         # UI elements
         self.file_list = QListWidget()
+        self.file_list.setMaximumWidth(200)
         self.documentation_viewer = QTextBrowser()
 
         # Layout
@@ -19,6 +20,9 @@ class DocumentationViewerTab(QWidget):
         documentation_layout.addWidget(QLabel("Documentation"), 0, 0, 1, 2)
         documentation_layout.addWidget(self.file_list, 1, 0)
         documentation_layout.addWidget(self.documentation_viewer, 1, 1)
+
+        documentation_layout.setColumnStretch(1, 5)
+
         self.setLayout(documentation_layout)
 
         self.markdown_files = [

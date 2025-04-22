@@ -9,7 +9,7 @@ from helpers import file_helpers
 class ListModelWidget(QWidget):
     """List Widget to Select an Model. It utilises ModelInfo to load information about each model."""
 
-    config_selected = Signal(str, ModelInfo)
+    item_selected = Signal(str, ModelInfo)
 
     def __init__(self):
         super().__init__()
@@ -27,7 +27,7 @@ class ListModelWidget(QWidget):
 
     def load_configs(self):
         """Reads JSON files into ModelInfo objects."""
-        self.configs = {}
+        self.model_info_json = {}
 
         models_dir = os.path.abspath("trained_models")
         if not os.path.exists(models_dir):
@@ -39,7 +39,7 @@ class ListModelWidget(QWidget):
                 folder_path = os.path.join(models_dir, folder)
                 info_path = os.path.join(folder_path, "info.json")
                 try:
-                    self.configs[folder] = ModelInfo.fromPath(info_path)
+                    self.model_info_json[folder] = ModelInfo.fromPath(info_path)
                 except FileNotFoundError:
                     print(f"{folder} model is not valid, removing")
                     file_helpers.delete_folder(folder_path)
@@ -47,8 +47,8 @@ class ListModelWidget(QWidget):
     def populate_list(self):
         """Populates the list with config names."""
         self.list_widget.clear()
-        for _, config_data in self.configs.items():
-            display_name = config_data.name + " - " + config_data.date_time_trained
+        for _, model_data in self.model_info_json.items():
+            display_name = model_data.name + " - " + model_data.date_time_trained
             self.list_widget.insertItem(0, display_name)
 
     def update_list(self):
@@ -61,11 +61,11 @@ class ListModelWidget(QWidget):
         if self.list_widget.currentItem() is not None:
             selected_name = self.list_widget.currentItem().text()
 
-            config_data = None
-            for _, data in self.configs.items():
+            name_data = None
+            for _, data in self.model_info_json.items():
                 if (data.name + " - " + data.date_time_trained) == selected_name:
-                    config_data = data
+                    name_data = data
                     break
 
-            if config_data is not None:
-                self.config_selected.emit(selected_name, config_data)
+            if name_data is not None:
+                self.item_selected.emit(selected_name, name_data)
