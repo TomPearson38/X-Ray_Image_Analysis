@@ -11,6 +11,7 @@ from helpers import file_helpers
 from helpers.console_output import CaptureConsoleOutputThread
 import stages.model_training
 from data_classes.model_info import ModelInfo
+from stages.test_model import TestModelStage
 
 
 class MainTrainPipeline(QThread):
@@ -36,10 +37,10 @@ class MainTrainPipeline(QThread):
         self.train_data_dir = os.path.join(self.data_dir, "images")
         self.train_labels_dir = os.path.join(self.data_dir, "labels")
 
-        data_dir = os.path.abspath("stored_training_images")
-        self.dataset_config_dir = os.path.join(data_dir, "datasets")
-        self.image_dir = os.path.join(data_dir, "images", "raw")
-        self.annotation_dir = os.path.join(data_dir, "labels", "raw")
+        stored_training_images_dir = os.path.abspath("stored_training_images")
+        self.dataset_config_dir = os.path.join(stored_training_images_dir, "datasets")
+        self.image_dir = os.path.join(stored_training_images_dir, "images", "raw")
+        self.annotation_dir = os.path.join(stored_training_images_dir, "labels", "raw")
         runs_dir = os.path.join("runs", "detect")
 
         if os.path.exists(runs_dir):
@@ -64,6 +65,7 @@ class MainTrainPipeline(QThread):
 
         if result and self._is_running:
             self.test_model(result)
+
         self.pipeline_finished.emit()
 
     def prepare_data(self):
@@ -100,7 +102,9 @@ class MainTrainPipeline(QThread):
         """
 
         class_names = ["0"]  # List of class names, only 1 flaw, so only one class
-        output_yaml = os.path.abspath("data/dataset_yaml/dataset.yaml")  # Path to save the YAML file
+
+        path = os.path.join("data", "dataset_yaml", "dataset.yaml")
+        output_yaml = os.path.abspath(path)  # Path to save the YAML file
 
         if self.model_info.starting_model == "":
             weights = "yolov5s.pt"  # Pretrained weights to use
@@ -156,10 +160,19 @@ class MainTrainPipeline(QThread):
         gc.collect()
         self.cleanup()
 
-    def test_model(self, model_dir):
+        return model_dir
+
+    def test_model(self, model_info_dir):
         """Tests the trained model against previous iterations, to produce a performance score."""
-        # TODO: Implement model testing.
-        pass
+        model_info_path = os.path.join(model_info_dir, "info.json")
+
+        model_info = ModelInfo.fromPath(model_info_path)
+
+        self.testing_thread = TestModelStage(model_info, self.train_data_dir, self.train_labels_dir, self.image_dir)
+        self.testing_thread.model_testing_text_signal.connect(self.model_testing_text)
+        self.testing_thread.model_testing_progress_bar_signal.connect(self.model_testing_progress_bar)
+        self.testing_thread.run()
+        self.testing_thread.wait()
 
     def cleanup(self):
         if hasattr(self, 'console_thread'):

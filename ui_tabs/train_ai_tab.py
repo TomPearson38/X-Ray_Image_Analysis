@@ -32,7 +32,7 @@ class TrainAiTab(QWidget):
         self.control_view_push_button.setText("Switch View")
         self.control_view_push_button.pressed.connect(self.switch_views)
 
-        switch_view_layout.addWidget(QLabel("Start Train Ai View"), 0, 0)
+        switch_view_layout.addWidget(QLabel("Start Train AI View"), 0, 0)
         switch_view_layout.addWidget(self.control_view_push_button, 0, 1)
 
         # Divider between elements
@@ -202,7 +202,8 @@ class TrainAiTab(QWidget):
         testing_label = QLabel("Testing Stage")
         testing_label.setAlignment(Qt.AlignCenter)
 
-        self.testing_stage_text_box = QLabel("")
+        self.testing_stage_text_box = QTextEdit()
+        self.testing_stage_text_box.setReadOnly(True)
 
         self.testing_progress_bar = QProgressBar()
         self.testing_progress_bar.setValue(0)
@@ -337,7 +338,7 @@ class TrainAiTab(QWidget):
         self.pipeline.model_training_text.connect(self.update_model_training_text)
         self.pipeline.model_training_progress_bar.connect(self.update_model_training_progress_bar)
         self.pipeline.model_testing_text.connect(self.update_testing_text)
-        self.pipeline.model_testing_progress_bar.connect(self.update_data_augmentation_progress_bar)
+        self.pipeline.model_testing_progress_bar.connect(self.update_testing_progress_bar)
         self.pipeline.pipeline_finished.connect(self.cleanup_training)
 
         # Start training the AI
@@ -429,7 +430,7 @@ class TrainAiTab(QWidget):
 
     def update_testing_text(self, update):
         """ Amends the descriptive text box with the provided string. """
-        self.testing_stage_text_box.setText(self.testing_stage_text_box.text() + " " + update)
+        self.testing_stage_text_box.append(update)
 
     def closeEvent(self, event):
         """ Handle window close event """
