@@ -20,6 +20,7 @@ class CreateDatasetConfig(QWidget):
         self.page_label = QLabel("Create New Dataset Config")
         self.name_label = QLabel("Name: ")
         self.import_all_images_label = QLabel("Import All Images? ")
+        self.information_label = QLabel("Names Must:\n-Be Unique\n-Not Contain Any Spaces")
 
         # Text Input
         self.name_text_input = QLineEdit()
@@ -43,9 +44,10 @@ class CreateDatasetConfig(QWidget):
         self.main_layout.addWidget(self.page_label, 0, 0, 1, 2, Qt.AlignmentFlag.AlignHCenter)
         self.main_layout.addWidget(self.name_label, 1, 0)
         self.main_layout.addWidget(self.name_text_input, 1, 1)
-        self.main_layout.addWidget(self.import_all_images_label, 2, 0)
-        self.main_layout.addWidget(self.import_all_images_checkbox, 2, 1)
-        self.main_layout.addWidget(self.stacked_buttons_layout_wrapper_widget, 3, 0, 1, 2)
+        self.main_layout.addWidget(self.information_label, 2, 0, 1, 2, Qt.AlignmentFlag.AlignCenter)
+        self.main_layout.addWidget(self.import_all_images_label, 3, 0)
+        self.main_layout.addWidget(self.import_all_images_checkbox, 3, 1)
+        self.main_layout.addWidget(self.stacked_buttons_layout_wrapper_widget, 4, 0, 1, 2)
 
         self.setLayout(self.main_layout)
 
@@ -70,6 +72,7 @@ class CreateDatasetConfig(QWidget):
                                     "Name Taken",
                                     "The name you have entered is already taken. "
                                     "Please enter a new name")
+            return
         else:
             if self.import_all_images_checkbox.isChecked():
                 all_files_string = file_helpers.list_files_in_folder(self.path_to_images_folder)

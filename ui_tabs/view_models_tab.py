@@ -64,13 +64,22 @@ class ViewModelsTab(QWidget):
         self.starting_model_label = QLabel("")
         self.setup_details_grid(details_layout, "Starting Model: ", self.starting_model_label, 13)
 
+        self.metamorphic_test_result_label = QLabel("")
+        self.setup_details_grid(details_layout, "Metamorphic Test Results: ", self.metamorphic_test_result_label, 14)
+
+        self.differential_test_result_label = QLabel("")
+        self.setup_details_grid(details_layout, "Differential Test Results: ", self.differential_test_result_label, 15)
+
+        self.fuzzing_test_result_label = QLabel("")
+        self.setup_details_grid(details_layout, "Fuzzing Test Results: ", self.fuzzing_test_result_label, 16)
+
         self.results_image = QLabel(self)
-        details_layout.addWidget(QLabel("Results Image: "), 14, 0, 1, 2)
-        details_layout.addWidget(self.results_image, 14, 0, 1, 2)
+        details_layout.addWidget(QLabel("Results Image: "), 17, 0, 1, 2)
+        details_layout.addWidget(self.results_image, 17, 0, 1, 2)
 
         self.delete_model_button = QPushButton("Delete Selected Model")
         self.delete_model_button.pressed.connect(self.delete_selected_model)
-        details_layout.addWidget(self.delete_model_button, 15, 0, 1, 2)
+        details_layout.addWidget(self.delete_model_button, 18, 0, 1, 2)
 
         details_layout_widget = QWidget()
         details_layout_widget.setLayout(details_layout)
@@ -103,8 +112,10 @@ class ViewModelsTab(QWidget):
         self.recall_label.setText(str(model.recall))
         self.dataset_config_label.setText(str(model.dataset_config))
         self.starting_model_label.setText(str(model.starting_model))
-
         self.selected_model = model.folder_name
+        self.metamorphic_test_result_label.setText(str(model.metamorphic_test_result))
+        self.differential_test_result_label.setText(str(model.differential_test_result))
+        self.fuzzing_test_result_label.setText(str(model.fuzzing_test_result))
 
         pixmap = model.get_results_png().scaled(800, 400)
         self.results_image.setPixmap(pixmap)
@@ -124,6 +135,9 @@ class ViewModelsTab(QWidget):
         self.recall_label.setText("")
         self.dataset_config_label.setText("")
         self.starting_model_label.setText("")
+        self.metamorphic_test_result_label.setText("")
+        self.differential_test_result_label.setText("")
+        self.fuzzing_test_result_label.setText("")
         self.results_image.clear()
 
         self.selected_model = ""

@@ -2,6 +2,7 @@ import random
 import shutil
 from PySide6.QtWidgets import QFileDialog
 import os
+from data_classes.model_info import ModelInfo
 
 """
 File_Helpers contains functions related to file management, creation and changes.
@@ -248,3 +249,29 @@ def list_files_in_folder(folder_path):
 def get_folder_name_from_path(path):
     """Returns the folder name from the provided path"""
     return os.path.basename(os.path.normpath(path))
+
+
+def get_model_for_comparison(path):
+    """ Returns the second most recent model for comparison. """
+    # Get all folder names
+    folders = [
+        f for f in os.listdir(path)
+        if os.path.isdir(os.path.join(path, f)) and f != '.gitignore'
+    ]
+
+    # No comparison possible
+    if len(folders) < 2:
+        return ""
+
+    # Sort so the second most recent can be retrieved
+    folders.sort(reverse=True)
+
+    model_info = ModelInfo.fromPath(os.path.join(path, folders[1], "info.json"))
+    return model_info.get_best_pt_path()
+
+
+def get_annotation_for_image(image_path, annotation_folder):
+    """ Returns the equivalent annotation for the provided image. """
+    filename = os.path.basename(image_path)
+    name, ext = os.path.splitext(filename)
+    return os.path.join(annotation_folder, name + ".txt")
