@@ -2,6 +2,7 @@ import os
 import random
 from PySide6.QtCore import Signal, QThread
 import cv2
+import numpy as np
 from ultralytics import YOLO
 from helpers import file_helpers
 from data_classes.model_info import ModelInfo
@@ -88,7 +89,7 @@ class TestModelStage(QThread):
             total_number += total
 
             self.model_testing_text_signal.emit(f"Metamorphic Test (Iteration "
-                                                f"{iteration_num}/{len(self.selected_test_images)}) - Matched "
+                                                f"{iteration_num + 1}/{len(self.selected_test_images)}) - Matched "
                                                 f"{matched}/{total}.")
             iteration_num += 1
             self.model_testing_progress_bar_signal.emit(int(iteration_num / len(self.selected_test_images) * 33))
@@ -155,8 +156,8 @@ class TestModelStage(QThread):
 
             # Emit a status update
             self.model_testing_text_signal.emit("Differential Testing - Calculated "
-                                                f"{index}/{length_of_selected_images}")
-            self.model_testing_progress_bar_signal.emit(int(index / length_of_selected_images * 66))
+                                                f"{index + 1}/{length_of_selected_images}")
+            self.model_testing_progress_bar_signal.emit(int(index / length_of_selected_images * 33) + 33)
 
         percentage_current_correct = current_model_performance / total_correct_bounding_boxes
         percentage_previous_correct = previous_model_performance / total_correct_bounding_boxes
@@ -171,13 +172,59 @@ class TestModelStage(QThread):
         self.model_testing_progress_bar_signal.emit(66)
 
     def fuzzing_tests(self):
-        pass
+        """ Fuzzing testing involves generating random and unexpected inputs for the system. The
+            primary goal is to identify issues such as program crashes, memory corruption and other
+            vulnerabilities. """
+
+        model = YOLO(self.model_info.get_best_pt_path())
+        num_passes = 0
+        num_fails = 0
+        total_num = len(self.selected_test_images)
+
+        for index in range(0, total_num):
+            try:
+                test_img_path = self.selected_test_images[index]
+                test_img = cv2.imread(test_img_path)
+
+                # Add chanel swap
+                channels = list(cv2.split(test_img))
+                random.shuffle(channels)
+                test_img = cv2.merge(channels)
+
+                # Add gaussian noise
+                random_gaussian_noise = np.random.normal(0, 25, test_img.shape).astype(np.uint8)
+                test_img = cv2.add(test_img, random_gaussian_noise)
+
+                # Add occlusion
+                h, w = test_img.shape[:2]
+                x1 = random.randint(0, w // 2)
+                y1 = random.randint(0, h // 2)
+                x2 = x1 + random.randint(10, w // 2)
+                y2 = y1 + random.randint(10, h // 2)
+                cv2.rectangle(test_img, (x1, y1), (x2, y2), (0, 0, 0), -1)
+
+                model(test_img)
+
+                num_passes += 1
+                self.model_testing_text_signal.emit(f"Fuzzing Testing - Test {index + 1}/{total_num} Passed.")
+            except Exception:
+                num_fails += 1
+                self.model_testing_text_signal.emit(f"Fuzzing Testing - Test {index}/{total_num} Failed.")
+
+            self.model_testing_progress_bar_signal.emit(int(int(index / total_num * 33) + 66))
+
+        percentage_passed = (num_passes / total_num) * 100
+        self.model_testing_text_signal.emit(f"Fuzzing Testing Finished, FINAL RESULT - {percentage_passed}% Passed")
+        self.model_testing_progress_bar_signal.emit(100)
+
+        self.model_info.fuzzing_test_result = percentage_passed
 
     def select_random_images(self, image_dir, percentage=5):
         """ Selects a provided percentage of images from the provided DIR. """
         all_files = [
             os.path.join(image_dir, f)
             for f in os.listdir(image_dir)
+            if f != '.gitignore'
         ]
 
         total = len(all_files)
