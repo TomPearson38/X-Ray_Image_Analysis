@@ -380,6 +380,8 @@ class TrainAiTab(QWidget):
             self.data_augmentation_progress_bar.setValue(0)
             self.model_training_text_box.clear()
             self.training_progress_bar.setValue(0)
+            self.testing_stage_text_box.clear()
+            self.testing_progress_bar.setValue(0)
 
             self.train_in_progress = False
             self.cancel_button.setVisible(False)
