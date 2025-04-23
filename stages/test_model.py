@@ -26,9 +26,9 @@ class TestModelStage(QThread):
         self.train_image_count = file_helpers.count_image_files_in_directory(self.path_to_train_images)
         self.val_image_count = file_helpers.count_image_files_in_directory(self.path_to_val_images)
 
-        self.selected_training_images = self.select_random_images(self.path_to_train_images, 5)
-        self.selected_val_images = self.select_random_images(self.path_to_val_images, 5)
-        self.selected_all_images = self.select_random_images(path_to_all_images, 1)
+        self.selected_training_images = self.select_random_images(self.path_to_train_images, 20)
+        self.selected_val_images = self.select_random_images(self.path_to_val_images, 20)
+        self.selected_all_images = self.select_random_images(path_to_all_images, 5)
 
         self.selected_test_images = []
         self.selected_test_images.extend(self.selected_training_images)
@@ -89,25 +89,33 @@ class TestModelStage(QThread):
             total_number += total
 
             self.model_testing_text_signal.emit(f"Metamorphic Test (Iteration "
-                                                f"{iteration_num + 1}/{len(self.selected_test_images)}) - Matched "
+                                                f"{iteration_num}/{len(self.selected_test_images)}) - Matched "
                                                 f"{matched}/{total}.")
             iteration_num += 1
             self.model_testing_progress_bar_signal.emit(int(iteration_num / len(self.selected_test_images) * 33))
 
-        final_result = f"{(total_match / total_number) * 100}% Matched out of {total_number} Total"
+        if total_number == 0:
+            final_result = "0% Matched. No bounding boxes were found in test data."
+        else:
+            final_result = f"{(total_match / total_number) * 100}% Matched out of {total_number} Total"
 
         self.model_info.metamorphic_test_result = final_result
 
         self.model_testing_text_signal.emit(f"Metamorphic Test Finished, FINAL RESULT - {final_result} ")
 
     def differential_tests(self):
-        """ Compares current model's performance to previous models. """
+        """ Compares current model's mean precision to previous models. """
         previous_model_path = self.model_info.starting_model
         if previous_model_path == "":
             previous_model_path = file_helpers.get_model_for_comparison(self.path_to_models)
 
         # No previous models
         if previous_model_path == "":
+            # Emit a status update
+            result_string = "No previous model found. Passing Test."
+            self.model_info.differential_test_result = result_string
+            self.model_testing_text_signal.emit(f"Differential Testing - {result_string} ")
+            self.model_testing_progress_bar_signal.emit(66)
             return
 
         current_model = YOLO(self.model_info.get_best_pt_path())
@@ -151,7 +159,7 @@ class TestModelStage(QThread):
             current_model_performance += self.compare_annotations(current_model_bounding_boxes,
                                                                   correct_bounding_boxes, 0.5)[0]
 
-            previous_model_performance += self.compare_annotations(current_model_bounding_boxes,
+            previous_model_performance += self.compare_annotations(previous_model_bounding_boxes,
                                                                    correct_bounding_boxes, 0.5)[0]
 
             # Emit a status update
@@ -159,22 +167,28 @@ class TestModelStage(QThread):
                                                 f"{index + 1}/{length_of_selected_images}")
             self.model_testing_progress_bar_signal.emit(int(index / length_of_selected_images * 33) + 33)
 
-        percentage_current_correct = current_model_performance / total_correct_bounding_boxes
-        percentage_previous_correct = previous_model_performance / total_correct_bounding_boxes
+        if total_correct_bounding_boxes == 0:
+            percentage_current_correct = 0
+            percentage_previous_correct = 0
+        else:
+            percentage_current_correct = current_model_performance / total_correct_bounding_boxes
+            percentage_previous_correct = previous_model_performance / total_correct_bounding_boxes
 
         # Difference can be positive (improved) or negative (degraded)
         difference = (percentage_current_correct - percentage_previous_correct) * 100
 
-        self.model_info.differential_test_result = difference
+        result_string = (f"Change in precision of {difference}%"
+                         f" since previous model, based on {length_of_selected_images}"
+                         " images.")
 
-        self.model_testing_text_signal.emit("Differential Testing Finished, FINAL RESULT - Change in accuracy of "
-                                            f"{difference}% since previous model.")
+        self.model_info.differential_test_result = result_string
+
+        self.model_testing_text_signal.emit(f"Differential Testing Finished, FINAL RESULT - {result_string}")
         self.model_testing_progress_bar_signal.emit(66)
 
     def fuzzing_tests(self):
-        """ Fuzzing testing involves generating random and unexpected inputs for the system. The
-            primary goal is to identify issues such as program crashes, memory corruption and other
-            vulnerabilities. """
+        """ Generates random and unexpected inputs for the system. The primary goal is to identify issues
+            such as program crashes, memory corruption and other vulnerabilities. """
 
         model = YOLO(self.model_info.get_best_pt_path())
         num_passes = 0
@@ -186,7 +200,7 @@ class TestModelStage(QThread):
                 test_img_path = self.selected_test_images[index]
                 test_img = cv2.imread(test_img_path)
 
-                # Add chanel swap
+                # Swap the colour channels
                 channels = list(cv2.split(test_img))
                 random.shuffle(channels)
                 test_img = cv2.merge(channels)
@@ -203,21 +217,26 @@ class TestModelStage(QThread):
                 y2 = y1 + random.randint(10, h // 2)
                 cv2.rectangle(test_img, (x1, y1), (x2, y2), (0, 0, 0), -1)
 
+                # Test the corrupted image with the model.
                 model(test_img)
 
+                # If an exception was not thrown, it has passed.
                 num_passes += 1
                 self.model_testing_text_signal.emit(f"Fuzzing Testing - Test {index + 1}/{total_num} Passed.")
             except Exception:
+                # Exception has been thrown so the test must have failed.
                 num_fails += 1
                 self.model_testing_text_signal.emit(f"Fuzzing Testing - Test {index}/{total_num} Failed.")
 
             self.model_testing_progress_bar_signal.emit(int(int(index / total_num * 33) + 66))
 
         percentage_passed = (num_passes / total_num) * 100
-        self.model_testing_text_signal.emit(f"Fuzzing Testing Finished, FINAL RESULT - {percentage_passed}% Passed")
+        result_string = f"{percentage_passed}% Passed out of {total_num} Images."
+
+        self.model_testing_text_signal.emit(f"Fuzzing Testing Finished, FINAL RESULT - {result_string}")
         self.model_testing_progress_bar_signal.emit(100)
 
-        self.model_info.fuzzing_test_result = percentage_passed
+        self.model_info.fuzzing_test_result = result_string
 
     def select_random_images(self, image_dir, percentage=5):
         """ Selects a provided percentage of images from the provided DIR. """
