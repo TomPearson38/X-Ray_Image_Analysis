@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QMessageBox
+from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QMessageBox, QScrollArea, QSizePolicy
 from PySide6.QtCore import Qt
 from data_classes.model_info import ModelInfo
 from data_classes.list_model_widget import ListModelWidget
@@ -81,10 +81,18 @@ class ViewModelsTab(QWidget):
         self.delete_model_button.pressed.connect(self.delete_selected_model)
         details_layout.addWidget(self.delete_model_button, 18, 0, 1, 2)
 
+        details_layout.setAlignment(Qt.AlignHCenter)
+
         details_layout_widget = QWidget()
         details_layout_widget.setLayout(details_layout)
 
-        self.layout.addWidget(details_layout_widget, 0, 1, Qt.AlignmentFlag.AlignCenter)
+        # Add widget to scroll area so content is not cutoff in smaller screens.
+        scrollable_details_widget = QScrollArea()
+        scrollable_details_widget.setWidgetResizable(True)
+        scrollable_details_widget.setWidget(details_layout_widget)
+        scrollable_details_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        self.layout.addWidget(scrollable_details_widget, 0, 1)
 
         self.layout.setColumnStretch(0, 0)
         self.layout.setColumnStretch(1, 1)
