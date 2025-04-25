@@ -29,6 +29,7 @@ class DatasetConfigTab(QWidget):
         self.image_files = []
         self.column_count = 3  # Used when changing the size of the display.
         self.previous_page_stack = []  # Previous page's indexes are stored in this stack for easy retrieval
+        self.create_config_active = False  # Stops creating two create config windows when the button is held.
 
         # Buttons
         self.create_new_config_button = QPushButton("Create New Config")
@@ -162,6 +163,10 @@ class DatasetConfigTab(QWidget):
                 ).widget()
             )
 
+            # The view has been reset, therefore it must no longer be on the create config view,
+            # even if the previous window was not a create config window.
+            self.create_config_active = False
+
     def delete_image(self, image_path, annotation_path, img_name, colour_path=""):
         """ Deletes the provided image and annotation path """
         for img in self.list_of_item_containers:
@@ -186,12 +191,14 @@ class DatasetConfigTab(QWidget):
 
     def create_config(self):
         """ Creates the view to create the config dataset. """
-        self.create_config_page = CreateDatasetConfig(self.dataset_config_dir, self.image_dir)
-        self.create_config_page.dataset_created_signal.connect(self.config_created)
-        self.create_config_page.cancel_creation_signal.connect(self.reset_layout)
-        self.main_stacked_layout.addWidget(self.create_config_page)
-        self.previous_page_stack.append(self.main_stacked_layout.currentIndex())
-        self.main_stacked_layout.setCurrentWidget(self.create_config_page)
+        if not self.create_config_active:  # Prevents create config button from being held, and creating two views.
+            self.create_config_active = True
+            self.create_config_page = CreateDatasetConfig(self.dataset_config_dir, self.image_dir)
+            self.create_config_page.dataset_created_signal.connect(self.config_created)
+            self.create_config_page.cancel_creation_signal.connect(self.reset_layout)
+            self.main_stacked_layout.addWidget(self.create_config_page)
+            self.previous_page_stack.append(self.main_stacked_layout.currentIndex())
+            self.main_stacked_layout.setCurrentWidget(self.create_config_page)
 
     def config_created(self, new_file_name):
         """ Called when a config has been created. Allows user to add items to new config. """
