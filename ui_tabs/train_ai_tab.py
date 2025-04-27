@@ -356,7 +356,8 @@ class TrainAiTab(QWidget):
         confirm_message_box = QMessageBox()
         confirm_message_box.setIcon(QMessageBox.Warning)
         confirm_message_box.setWindowTitle("Cancel Confirmation")
-        confirm_message_box.setText("Are you sure you want to cancel?")
+        confirm_message_box.setText("Are you sure you want to cancel training?\nCancelling training can be unstable, "
+                                    "you may need to restart the program after cancelling.")
         confirm_message_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         result = confirm_message_box.exec()
 

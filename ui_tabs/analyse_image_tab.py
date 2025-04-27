@@ -73,6 +73,7 @@ class AnalyseImageTab(QWidget):
         """ Analyses the selected image using the selected model. """
         # Checks for valid AI path
         self.analyseImageButton.setDisabled(True)
+        self.analyseImageButton.setText("Analysing...")
 
         if (self.selectedAIModelPath == "" or Path(self.selectedAIModelPath).suffix != ".pt"):
             errorMessage = QMessageBox()
@@ -81,6 +82,7 @@ class AnalyseImageTab(QWidget):
             errorMessage.setText("Please select a valid AI model.")
             errorMessage.exec()
             self.analyseImageButton.setDisabled(False)
+            self.analyseImageButton.setText("Analyse")
             return
 
         # Checks for valid image path
@@ -91,6 +93,7 @@ class AnalyseImageTab(QWidget):
             errorMessage.setText("Please select a valid image to analyse.")
             errorMessage.exec()
             self.analyseImageButton.setDisabled(False)
+            self.analyseImageButton.setText("Analyse")
             return
 
         # Setup worker and thread
@@ -101,6 +104,7 @@ class AnalyseImageTab(QWidget):
     def analysis_finished(self, results):
         """ Displays the view results page. """
         self.analyseImageButton.setDisabled(False)
+        self.analyseImageButton.setText("Analyse")
         self.results_widget = ViewResultsPage(self.selectedImage, results)
         self.results_widget.switch_view.connect(self.reset_view)
         self.results_widget.new_image_signal.connect(self.new_image)

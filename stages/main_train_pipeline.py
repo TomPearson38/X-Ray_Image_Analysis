@@ -2,6 +2,7 @@ import datetime
 import gc
 import os
 import shutil
+import stat
 import subprocess
 import time
 from PySide6.QtCore import Signal, QThread
@@ -45,7 +46,12 @@ class MainTrainPipeline(QThread):
         runs_dir = os.path.join("runs", "detect")
 
         if os.path.exists(runs_dir):
-            shutil.rmtree(runs_dir)
+            # Removes each file in the directory. If the file is access blocked, it changes the permissions to read only
+            # then deletes it. This prevents previous processes locking resources when they should have exited.
+            shutil.rmtree(
+                runs_dir,
+                onexc=lambda func, path, exc_info: (os.chmod(path, stat.S_IWRITE), func(path))
+            )
 
     def run(self):
         self.pipeline_flow()
@@ -156,8 +162,9 @@ class MainTrainPipeline(QThread):
             else:
                 time.sleep(100)
 
-        torch.cuda.empty_cache()
-        torch._C._cuda_clearCublasWorkspaces()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch._C._cuda_clearCublasWorkspaces()
         gc.collect()
         self.cleanup()
 
