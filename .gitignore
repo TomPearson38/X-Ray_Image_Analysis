@@ -174,4 +174,5 @@ cython_debug/
 runs/*
 data/dataset_yaml
 yolo11n.pt
-yolov5su.pt
+yolov5m.pt
+yolov5mu.pt

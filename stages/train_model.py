@@ -13,13 +13,13 @@ from helpers import file_helpers
 
 
 def train_yolo(data_yaml, model_info, training_start, model_dir,
-               weights="yolov5s.pt", img_size="640", batch_size="16", epochs="50"):
+               weights="yolov5m.pt", img_size="640", batch_size="16", epochs="50"):
     """
     Train a YOLOv5 model with the specified parameters.
 
     Args:
         data_yaml (str): Path to the dataset YAML file.
-        weights (str): Pretrained weights to use (e.g., 'yolov5s.pt').
+        weights (str): Pretrained weights to use (e.g., 'yolov5m.pt').
         img_size (int): Image size for training (e.g., 640).
         batch_size (int): Batch size for training.
         epochs (int): Number of epochs to train.
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_info", type=str)
     parser.add_argument("--training_start", type=str)
     parser.add_argument("--model_dir", type=str)
-    parser.add_argument("--weights", type=str, default="yolov5s.pt")
+    parser.add_argument("--weights", type=str, default="yolov5m.pt")
     parser.add_argument("--img_size", type=str, default="640")
     parser.add_argument("--batch_size", type=str, default="16")
     parser.add_argument("--epochs", type=str, default="50")

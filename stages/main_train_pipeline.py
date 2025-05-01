@@ -114,7 +114,7 @@ class MainTrainPipeline(QThread):
         output_yaml = os.path.abspath(path)  # Path to save the YAML file
 
         if self.model_info.starting_model == "":
-            weights = "yolov5s.pt"  # Pretrained weights to use
+            weights = "yolov5m.pt"  # Pretrained weights to use
         else:
             weights = self.model_info.starting_model
 

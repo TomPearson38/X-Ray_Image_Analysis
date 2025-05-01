@@ -155,7 +155,7 @@ class TrainAiTab(QWidget):
         data_augmentation_column.setLineWidth(1)
         data_augmentation_column.setMinimumWidth(200)
 
-        data_augmentation_label = QLabel("Data Augmentation Stage")
+        data_augmentation_label = QLabel("Data Preparation Stage")
         data_augmentation_label.setAlignment(Qt.AlignCenter)
 
         self.data_augmentation_text_box = QTextEdit()
