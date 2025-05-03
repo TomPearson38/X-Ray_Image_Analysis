@@ -37,13 +37,14 @@ class EditConfigItemContainer(QWidget):
 
     def toggle_visible(self):
         """Changes which button, add or remove, is visible. Also updates internal value of "is_in_current_config."""
+        self.add_button.setVisible(not self.add_button.isVisible())
+        self.remove_button.setVisible(not self.remove_button.isVisible())
+
         if self.is_in_current_config:
             self.item_removed.emit(self.image_item_container.get_label_text, self)
         else:
             self.item_added.emit(self.image_item_container.get_label_text, self)
 
-        self.add_button.setVisible(not self.add_button.isVisible())
-        self.remove_button.setVisible(not self.remove_button.isVisible())
         self.is_in_current_config = not self.is_in_current_config
 
     def to_string(self) -> str:
