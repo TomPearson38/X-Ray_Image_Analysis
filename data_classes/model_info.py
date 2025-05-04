@@ -5,13 +5,14 @@ from PySide6.QtGui import QPixmap
 
 class ModelInfo:
     """Class to represent an AI Model configuration object."""
-    def __init__(self, name, model, date_time_trained, number_of_images, path="", epoch="",
+    def __init__(self, name, model, date_time_trained, total_training_time, number_of_images, path="", epoch="",
                  box_loss="", cls_loss="", mAP_50="", mAP_50_95="", precision="", recall="",
                  dataset_config="", starting_model="", folder_name="", metamorphic_test_result="",
                  differential_test_result="", fuzzing_test_result=""):
         self.name = name
         self.model = model
         self.date_time_trained = date_time_trained
+        self.total_training_time = total_training_time
         self.number_of_images = number_of_images
         self.path = path
         self.epoch = epoch
@@ -51,6 +52,7 @@ class ModelInfo:
             "name": self.name,
             "model": self.model,
             "date_time_trained": self.date_time_trained,
+            "total_training_time": self.total_training_time,
             "number_of_images": self.number_of_images,
             "path": self.path,
             "epoch": self.epoch,

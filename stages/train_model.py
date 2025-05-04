@@ -68,10 +68,15 @@ def train_yolo(data_yaml, model_info, training_start, model_dir,
     shutil.rmtree(best_model_path)
     results_df = (pd.read_csv(os.path.join(model_dir, "results.csv"))).iloc[-1].to_dict()
 
+    minutes_training = round(float(results_df["time"]) / 60, 3)
+    hours_training = round(float(results_df["time"]) / 3600, 3)
+    total_train_time_string = f"{minutes_training} Minutes ({hours_training} Hours)"
+
     model_info_object = ModelInfo.from_json(model_info)
 
     model_info_object.path = model_dir
     model_info_object.date_time_trained = training_start
+    model_info_object.total_training_time = total_train_time_string
     model_info_object.recall = results_df["metrics/recall(B)"]
     model_info_object.precision = results_df["metrics/precision(B)"]
     model_info_object.epoch = results_df["epoch"]

@@ -30,56 +30,59 @@ class ViewModelsTab(QWidget):
         self.date_time_trained_label = QLabel("")
         self.setup_details_grid(details_layout, "Date Time Trained: ", self.date_time_trained_label, 2)
 
+        self.total_training_time_label = QLabel("")
+        self.setup_details_grid(details_layout, "Total Training Time: ", self.total_training_time_label, 3)
+
         self.number_of_images_label = QLabel("")
-        self.setup_details_grid(details_layout, "Number of Images: ", self.number_of_images_label, 3)
+        self.setup_details_grid(details_layout, "Number of Images: ", self.number_of_images_label, 4)
 
         self.path_label = QLabel("")
         self.path_label.setWordWrap(True)
-        self.setup_details_grid(details_layout, "Path: ", self.path_label, 4)
+        self.setup_details_grid(details_layout, "Path: ", self.path_label, 5)
 
         self.epoch_label = QLabel("")
-        self.setup_details_grid(details_layout, "Epoch: ", self.epoch_label, 5)
+        self.setup_details_grid(details_layout, "Epoch: ", self.epoch_label, 6)
 
         self.box_loss_label = QLabel("")
-        self.setup_details_grid(details_layout, "Box Loss: ", self.box_loss_label, 6)
+        self.setup_details_grid(details_layout, "Box Loss: ", self.box_loss_label, 7)
 
         self.cls_loss_label = QLabel("")
-        self.setup_details_grid(details_layout, "CLS Loss: ", self.cls_loss_label, 7)
+        self.setup_details_grid(details_layout, "CLS Loss: ", self.cls_loss_label, 8)
 
         self.mAP_50_label = QLabel("")
-        self.setup_details_grid(details_layout, "Mean Average Precision IoU(0.5): ", self.mAP_50_label, 8)
+        self.setup_details_grid(details_layout, "Mean Average Precision IoU(0.5): ", self.mAP_50_label, 9)
 
         self.mAP_50_95_label = QLabel("")
-        self.setup_details_grid(details_layout, "Mean Average Precision IoU(0.5-0.95): ", self.mAP_50_95_label, 9)
+        self.setup_details_grid(details_layout, "Mean Average Precision IoU(0.5-0.95): ", self.mAP_50_95_label, 10)
 
         self.precision_label = QLabel("")
-        self.setup_details_grid(details_layout, "Precision: ", self.precision_label, 10)
+        self.setup_details_grid(details_layout, "Precision: ", self.precision_label, 11)
 
         self.recall_label = QLabel("")
-        self.setup_details_grid(details_layout, "Recall: ", self.recall_label, 11)
+        self.setup_details_grid(details_layout, "Recall: ", self.recall_label, 12)
 
         self.dataset_config_label = QLabel("")
-        self.setup_details_grid(details_layout, "Dataset Config: ", self.dataset_config_label, 12)
+        self.setup_details_grid(details_layout, "Dataset Config: ", self.dataset_config_label, 13)
 
         self.starting_model_label = QLabel("")
-        self.setup_details_grid(details_layout, "Starting Model: ", self.starting_model_label, 13)
+        self.setup_details_grid(details_layout, "Starting Model: ", self.starting_model_label, 14)
 
         self.metamorphic_test_result_label = QLabel("")
-        self.setup_details_grid(details_layout, "Metamorphic Test Results: ", self.metamorphic_test_result_label, 14)
+        self.setup_details_grid(details_layout, "Metamorphic Test Results: ", self.metamorphic_test_result_label, 15)
 
         self.differential_test_result_label = QLabel("")
-        self.setup_details_grid(details_layout, "Differential Test Results: ", self.differential_test_result_label, 15)
+        self.setup_details_grid(details_layout, "Differential Test Results: ", self.differential_test_result_label, 16)
 
         self.fuzzing_test_result_label = QLabel("")
-        self.setup_details_grid(details_layout, "Fuzzing Test Results: ", self.fuzzing_test_result_label, 16)
+        self.setup_details_grid(details_layout, "Fuzzing Test Results: ", self.fuzzing_test_result_label, 17)
 
         self.results_image = QLabel(self)
-        details_layout.addWidget(QLabel("Results Image: "), 17, 0, 1, 2)
-        details_layout.addWidget(self.results_image, 17, 0, 1, 2)
+        details_layout.addWidget(QLabel("Results Image: "), 18, 0, 1, 2)
+        details_layout.addWidget(self.results_image, 18, 0, 1, 2)
 
         self.delete_model_button = QPushButton("Delete Selected Model")
         self.delete_model_button.pressed.connect(self.delete_selected_model)
-        details_layout.addWidget(self.delete_model_button, 18, 0, 1, 2)
+        details_layout.addWidget(self.delete_model_button, 19, 0, 1, 2)
 
         details_layout.setAlignment(Qt.AlignHCenter)
 
@@ -109,6 +112,7 @@ class ViewModelsTab(QWidget):
         self.name_label.setText(model.name)
         self.model_label.setText(model.model)
         self.date_time_trained_label.setText(model.date_time_trained)
+        self.total_training_time_label.setText(model.total_training_time)
         self.number_of_images_label.setText(model.number_of_images)
         self.path_label.setText(model.path)
         self.epoch_label.setText(str(model.epoch))
@@ -132,6 +136,7 @@ class ViewModelsTab(QWidget):
         self.name_label.setText("")
         self.model_label.setText("")
         self.date_time_trained_label.setText("")
+        self.total_training_time_label.setText("")
         self.number_of_images_label.setText("")
         self.path_label.setText("")
         self.epoch_label.setText("")

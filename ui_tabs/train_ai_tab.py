@@ -323,6 +323,7 @@ class TrainAiTab(QWidget):
         self.model_info = ModelInfo(self.ai_name_input.text(),
                                     self.model_selected_combobox.currentText(),
                                     "",
+                                    "",
                                     self.image_count,
                                     epoch=self.epoch_num_input.text(),
                                     dataset_config=self.config_combobox_items[
