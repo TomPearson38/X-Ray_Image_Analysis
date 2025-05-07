@@ -48,13 +48,13 @@ class ViewResultsPage(QWidget):
         layout.addWidget(zoom_out_button, 2, 1)
 
         correct_button = QPushButton("AI Predicted Correctly")
-        incorrect_button = QPushButton("AI Was Incorrect (Relabel and Add to Dataset)")
+        self.incorrect_button = QPushButton("AI Was Incorrect (Relabel and Add to Dataset)")
 
         correct_button.pressed.connect(self.close_view)
         layout.addWidget(correct_button, 3, 0)
 
-        incorrect_button.pressed.connect(self.create_new_image)
-        layout.addWidget(incorrect_button, 3, 1)
+        self.incorrect_button.pressed.connect(self.create_new_image)
+        layout.addWidget(self.incorrect_button, 3, 1)
 
         self.setLayout(layout)
 
@@ -64,6 +64,7 @@ class ViewResultsPage(QWidget):
 
     def create_new_image(self):
         """ Creates a new image using the values provided from the results of the analysed image. """
+        self.incorrect_button.setDisabled(True)
         new_img_folder = os.path.join("stored_training_images", "images", "raw")
         new_txt_folder = os.path.join("stored_training_images", "labels", "raw")
         safe_image_path, safe_image_file_name = file_helpers.create_valid_data_file_name(self.image_path,
