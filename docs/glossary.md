@@ -47,7 +47,7 @@ In this system, the test image is analysed, rotated by 90 degrees, and then anal
 ### **Differential Test**
 Differential testing compares the performance of test cases on similar versions of the software implementations. It ensures that the previous iteration’s characteristics are not lost when the model is retained.
 
-In this system, the average precision for the current model is calculated using part of the training, testing and whole dataset. It is also calculated for the previous model based on the date, or if the current model has been trained from another model, it is selected instead. The difference in their precision is returned.
+In this system, the recall for the current model is calculated using part of the training, testing and whole dataset. It is also calculated for the previous model based on the date, or if the current model has been trained from another model, it is selected instead. The difference in their recall is returned.
 
 ### **Fuzzing Test**
 Fuzzing testing involves generating random and unexpected inputs for the system. The primary goal is identifying issues such as program crashes, memory corruption and other vulnerabilities. Overall, it helps to evaluate the system's robustness and uncover weaknesses that might go undetected during regular operation.

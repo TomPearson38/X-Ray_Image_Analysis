@@ -104,7 +104,7 @@ class TestModelStage(QThread):
         self.model_testing_text_signal.emit(f"Metamorphic Test Finished, FINAL RESULT - {final_result} ")
 
     def differential_tests(self):
-        """ Compares current model's mean precision to previous models. """
+        """ Compares current model's recall compared to previous models. """
         previous_model_path = self.model_info.starting_model
         if previous_model_path == "":
             previous_model_path = file_helpers.get_model_for_comparison(self.path_to_models)
@@ -177,7 +177,7 @@ class TestModelStage(QThread):
         # Difference can be positive (improved) or negative (degraded)
         difference = (percentage_current_correct - percentage_previous_correct) * 100
 
-        result_string = (f"Change in precision of {difference}%"
+        result_string = (f"Change in recall of {difference}%"
                          f" since previous model, based on {length_of_selected_images}"
                          " images.")
 
