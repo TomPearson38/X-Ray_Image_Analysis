@@ -1,16 +1,26 @@
 # Install Instructions
 
-This system requires a Nvidia Graphics Card to function correctly. It can work without one, but will be **much** slower. It was developed with a GeForce RTX 3070, therefore any other graphics card that is equal or better performing will be perfect for this system.
+**Hardware requirements**
+- This system requires an Nvidia Graphics Card to function correctly. It can work without one, but will be **much** slower. For reference, it was developed with a GeForce RTX 3070.
 
-To ensure that the program works correctly, you must first follow these steps on how to install the program.
+**Software requirements**
+- Python 3.12+
+- Nvidia Graphics Card Driver
+- CUDA
+- Git
+- YOLOv5
+
+To ensure that the program works correctly, you must first follow these steps to install the program. 
+The instructions below assume your OS is Windows, but you can run the tool on Linux or Mac. 
 
 **Video Tutorial**
-This text guide assumes that the install process goes smoothly, if you would like a commentated video demonstrating each step from scratch, watch this video instead. [Link to Video](https://youtu.be/WVHLTXX7thQ)
+This text guide assumes that the installation process goes smoothly. 
+If you would like a commented video demonstrating each step from scratch, watch [this video](https://youtu.be/WVHLTXX7thQ) instead.
 
 ## Python Installation
-This program needs python version 3.12. (It was developed using python 3.12.8, but the newest version of python 3.12 should be sufficient). This can be downloaded from python at [Python Homepage](https://www.python.org/downloads/windows/). With the latest version at the time of writing being, [3.12.10](https://www.python.org/downloads/release/python-31210/).
+This program needs Python version 3.12. (It was developed using python 3.12.8, but the newest version of python 3.12 should be sufficient). This can be downloaded from python at [Python Homepage](https://www.python.org/downloads/windows/). With the latest version at the time of writing being, [3.12.10](https://www.python.org/downloads/release/python-31210/).
 
-When installing ensure that you select the **Add Python.exe to Path** option at the bottom of the installer.
+When installing, ensure that you select the **Add Python.exe to Path** option at the bottom of the installer.
 
 ## Updating your Graphics Card Drivers and Installing CUDA
 First, visit the [CUDA Installer](https://developer.nvidia.com/cuda-12-6-0-download-archive).
