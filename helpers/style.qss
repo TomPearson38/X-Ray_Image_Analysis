@@ -165,3 +165,11 @@ QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
     background: #05f3ff;
     height: 0px;
 }
+
+QMessageBox {
+    background-color: #FFFFFF;
+}
+
+QMessageBox QLabel {
+    color: #000000;
+}

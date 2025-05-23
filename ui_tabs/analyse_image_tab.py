@@ -65,7 +65,7 @@ class AnalyseImageTab(QWidget):
         result = file_helpers.browse_file(self, "", "Images (*.png *.jpg)")
 
         # Checks to see if selected image is valid
-        if result != "" and (result.endswith(".png") or result.endswith(".jpg")):
+        if result != "" and (result.endswith(".png") or result.endswith(".jpg") or result.endswith(".JPG") or result.endswith(".PNG")):
             self.selectedImage = result
             self.selectedImageLabel.setText("..." + self.selectedImage[-20:])
 
@@ -86,7 +86,7 @@ class AnalyseImageTab(QWidget):
             return
 
         # Checks for valid image path
-        elif (self.selectedImage == "" or Path(self.selectedImage).suffix not in {".png", ".jpg"}):
+        elif (self.selectedImage == "" or Path(self.selectedImage).suffix not in {".png", ".jpg", ".PNG", ".JPG"}):
             errorMessage = QMessageBox()
             errorMessage.setIcon(QMessageBox.Critical)
             errorMessage.setWindowTitle("Error")

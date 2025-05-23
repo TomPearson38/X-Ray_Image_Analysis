@@ -82,7 +82,7 @@ class MainTrainPipeline(QThread):
         self.data_augmentation_progress_bar.emit(10)
 
         self.data_augmentation_text.emit("Loading Data...")
-        all_img_path = [f for f in os.listdir(self.image_dir) if f.endswith(('.jpg', '.png'))]
+        all_img_path = [f for f in os.listdir(self.image_dir) if f.endswith(('.jpg', '.png', '.PNG', '.JPG'))]
         self.data_augmentation_progress_bar.emit(20)
 
         if (self.model_info.dataset_config != "All Images"):

@@ -77,6 +77,7 @@ def handle_sigint(signal_received, frame):
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_sigint)  # CTRL C exit condition
+    os.environ["QT_IMAGEIO_MAXALLOC"] = str(1024 * 1024 * 1024 * 3)  # 1 GB
     app = QApplication(sys.argv)
 
     # Logo Setting

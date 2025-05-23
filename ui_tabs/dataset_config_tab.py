@@ -92,7 +92,7 @@ class DatasetConfigTab(QWidget):
 
     def load_images(self):
         """ Loads the images to be added to the list of item containers """
-        self.image_files = [f for f in os.listdir(self.image_dir) if f.endswith(('.jpg', '.png'))]
+        self.image_files = [f for f in os.listdir(self.image_dir) if f.endswith(('.jpg', '.png', '.PNG', '.JPG'))]
 
         self.list_of_item_containers = []
         self.filtered_list = []
@@ -243,7 +243,7 @@ class DatasetConfigTab(QWidget):
         if safe_image_path == "":
             # Image prompt, user selects valid image
             result = file_helpers.browse_file(self, "", "Images (*.png *.jpg)")
-            if result != "" and (result.endswith(".png") or result.endswith(".jpg")):
+            if result != "" and (result.endswith(".png") or result.endswith(".jpg") or result.endswith(".JPG") or result.endswith(".PNG")):
                 self.selectedImage = result
             else:
                 return
