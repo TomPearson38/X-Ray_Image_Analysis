@@ -21,3 +21,7 @@ For full details on how to install from scratch, please visit the [install_instr
 # License Information
 
 Please see the [license document](LICENSE.md)
+
+# Video Demonstration
+
+Please see the following [YouTube Video](https://youtu.be/26JdtoJ3ZDw) for a demonstration of the system.
